@@ -1,0 +1,288 @@
+\chapter{Related Work}
+
+\section{Literature Review}
+
+A. Overview of the Research Scope
+
+Workplace safety monitoring has evolved significantly with advances in \textbf{computer vision, deep learning, and intelligent video analytics}. Traditional safety methods—manual supervision, periodic inspections, or post-incident video review—are increasingly being augmented by automated systems capable of real-time hazard detection. This chapter reviews literature related to the four core components relevant to VisionSafe 360:
+
+\begin{itemize}
+\item \textbf{PPE (Personal Protective Equipment) Detection}
+\item \textbf{Human Fall Detection Using Temporal Modelling}
+\item \textbf{Proximity and Collision Risk Detection via Multi-Object Tracking}
+\item \textbf{Posture and Ergonomic Risk Assessment through Pose Estimation}
+\end{itemize}
+
+The aim is to understand state-of-the-art progress, identify existing challenges, and clarify the research gaps that VisionSafe 360 is designed to address.
+
+B. Thematic Grouping of Literature
+
+1. PPE Detection Systems
+
+Study 1 — Ali et al. (2020)
+
+\begin{itemize}
+\item \textbf{Goal:} Real-time detection of hardhats and safety vests using CCTV video.
+\item \textbf{Method:} YOLOv3-based CNN trained on public construction site datasets.
+\item \textbf{Findings:} Achieved \textit{88\% mAP} under controlled lighting conditions.
+\item \textbf{Strengths/Limitations:} Robust for helmets; accuracy drops with occlusion or low-light scenarios.
+\end{itemize}
+
+Study 2 — Zhang et al. (2021)
+
+\begin{itemize}
+\item \textbf{Goal:} Scalable PPE compliance monitoring in large construction sites.
+\item \textbf{Method:} YOLOv4 combined with DeepSORT tracking to maintain worker identities.
+\item \textbf{Findings:} Consistent detection across multiple camera angles; \textit{82\% ID tracking accuracy}.
+\item \textbf{Strengths/Limitations:} High computational demands limit deployment on edge devices.
+\end{itemize}
+
+Study 3 — López et al. (2022)
+
+\begin{itemize}
+\item \textbf{Goal:} Detect PPE violations (helmet, vest, gloves, boots).
+\item \textbf{Method:} Lightweight MobileNet-SSD architecture for edge devices.
+\item \textbf{Findings:} Good speed (20–25 FPS on Jetson Nano) with \textit{75\% detection accuracy}.
+\item \textbf{Strengths/Limitations:} Limited precision for small PPE items like gloves.
+\end{itemize}
+
+2. Fall Detection Using Temporal Modelling
+
+Study 4 — Nguyen et al. (2020)
+
+\begin{itemize}
+\item \textbf{Goal:} Fall detection in industrial videos.
+\item \textbf{Method:} LSTM networks using frames extracted from CCTV.
+\item \textbf{Findings:} \textit{92\% accuracy} on staged falls; reduced reliability in crowded scenes.
+\item \textbf{Strengths/Limitations:} Temporal modelling is strong, but dependent on clean video input.
+\end{itemize}
+
+Study 5 — Han et al. (2021)
+
+\begin{itemize}
+\item \textbf{Goal:} Real-time fall classification.
+\item \textbf{Method:} 3D CNN + optical flow to capture temporal patterns.
+\item \textbf{Findings:} Works well on multiple camera angles; \textit{86\% precision}.
+\item \textbf{Strengths/Limitations:} Computationally expensive; not suitable for low-end GPUs.
+\end{itemize}
+
+Study 6 — Wang et al. (2022)
+
+\begin{itemize}
+\item \textbf{Goal:} Edge-based fall detection for IoT safety systems.
+\item \textbf{Method:} Tiny-YOLO + GRU model for sequences.
+\item \textbf{Findings:} 17 FPS edge deployment with reasonable accuracy.
+\item \textbf{Strengths/Limitations:} Reduced accuracy during occlusion or distance >8 meters.
+\end{itemize}
+
+3. Proximity and Collision Risk Detection
+
+Study 7 — Kim et al. (2021)
+
+\begin{itemize}
+\item \textbf{Goal:} Worker-vehicle proximity alerts.
+\item \textbf{Method:} DeepSORT multi-object tracking + depth estimation.
+\item \textbf{Findings:} Real-time distance estimation; \textit{80\% near-miss prediction accuracy}.
+\item \textbf{Strengths/Limitations:} Requires camera calibration for accurate distance estimation.
+\end{itemize}
+
+Study 8 — Carter et al. (2022)
+
+\begin{itemize}
+\item \textbf{Goal:} Predict collision risks between forklifts and workers.
+\item \textbf{Method:} YOLO-based object detection + probabilistic motion prediction.
+\item \textbf{Findings:} Reduced false alerts by \textit{25\%} compared to fixed-threshold systems.
+\item \textbf{Strengths/Limitations:} Complex motion modelling; sensitive to camera shake.
+\end{itemize}
+
+4. Posture and Ergonomics Assessment
+
+Study 9 — Ahmed and Patel (2019)
+
+\begin{itemize}
+\item \textbf{Goal:} Detect ergonomically harmful postures in warehouses.
+\item \textbf{Method:} OpenPose skeleton extraction + angle-based risk scoring.
+\item \textbf{Findings:} Effective at detecting bending, twisting, and lifting risks.
+\item \textbf{Strengths/Limitations:} Struggles with partial body visibility.
+\end{itemize}
+
+Study 10 — Brown et al. (2021)
+
+\begin{itemize}
+\item \textbf{Goal:} Automated ergonomic risk assessment (REBA score prediction).
+\item \textbf{Method:} CNN + LSTM for joint angle sequences.
+\item \textbf{Findings:} \textit{74\% agreement rate} with expert physiologists.
+\item \textbf{Strengths/Limitations:} Requires large annotated posture datasets.
+\end{itemize}
+
+C. Summary of the Reviewed Studies
+
+Collectively, prior work demonstrates that:
+
+\begin{itemize}
+\item \textbf{Object detection} (YOLO, SSD) is highly effective for PPE compliance but limited by occlusion and lighting.
+\item \textbf{Temporal networks} (LSTM, GRU, 3D CNNs) improve fall detection but often require high compute resources.
+\item \textbf{Multi-object tracking} aids proximity detection but is sensitive to camera calibration.
+\item \textbf{Pose estimation} provides ergonomic insights but struggles with camera viewpoint diversity.
+\end{itemize}
+
+The reviewed systems show promising results but often target only \textbf{single hazards}, require \textbf{high-end GPUs}, or depend on \textbf{specialised hardware}.
+
+D. Similar Applications and Existing Solutions.
+
+Although several commercial and research-based systems exist for workplace safety, many exhibit critical limitations.
+
+\newcommand{\companylogowidth}{5.2cm}
+\newcommand{\companylogoheight}{2.4cm}
+\newcommand{\companylogo}[1]{%
+\includegraphics[width=\companylogowidth,height=\companylogoheight,keepaspectratio]{#1}%
+}
+
+.1Intenseye
+
+\begin{figure}[H]
+\centering
+\companylogo{images/img_002.png}
+\end{figure}
+
+Figure [1] Intenseye Company
+
+is a cloud-based platform focused on monitoring PPE compliance. It offers high detection accuracy and a user-friendly dashboard that simplifies safety management. Nevertheless, the system relies on cloud streaming, making it unsuitable in environments with limited network bandwidth or strict privacy requirements.
+
+2. Protex AI
+
+\begin{figure}[H]
+\centering
+\companylogo{images/img_003.png}
+\end{figure}
+
+Figure [2] Protex Company
+
+is another commercial solution that tracks safety incidents such as PPE violations and near-miss events. While it delivers enterprise-grade analytics, it does not support posture or ergonomic assessment, and its high cost can be prohibitive for many companies.
+
+3. SmartVid.io
+
+\begin{figure}[H]
+\centering
+\companylogo{images/img_004.png}
+\end{figure}
+
+Figure [3] StarVid.IO Company
+
+is an AI-based safety analytics platform designed for construction sites. It offers robust hazard classification capabilities and can detect unsafe acts effectively, providing safety officers with actionable insights. However, it is a paid service and lacks flexibility for local deployment, which limits its accessibility for smaller organisations or projects in regions with limited resources.
+
+4. YOLO-Based Academic Prototypes.
+
+\begin{figure}[H]
+\centering
+\companylogo{images/img_005.png}
+\end{figure}
+
+Figure [4] Ultralytics Company
+
+use object detection models for PPE and hazard detection. Modern versions like \textbf{Ultralytics YOLOv5 and YOLOv8} offer fast, accurate real-time detection and edge deployment. However, most academic implementations focus only on detection and lack dashboards, alerts, or multi-hazard integration, limiting practical workplace use.
+
+\textbf{E. Research Gap}
+
+Despite advancements, several key gaps remain:
+
+1. Lack of Unified Multi-Hazard Systems
+
+Most existing systems address \textbf{only one hazard}—PPE, falls, or proximity—but not a combined pipeline.
+
+2. Limited Real-Time Performance on Affordable Hardware
+
+High-end models demand powerful GPUs, making them inaccessible for many workplaces.
+
+3. Inadequate Support for Non-Ideal Conditions
+
+Challenges include:
+
+\begin{itemize}
+\item Low light
+\item Occlusion
+\item Non-frontal camera angles
+\item Crowded industrial scenes
+\end{itemize}
+
+4. Absence of Open, Local Deployment Solutions
+
+Many systems require cloud processing, which is unsuitable for:
+
+\begin{itemize}
+\item Privacy-sensitive environments
+\item Poor network stability
+\item Cost constraints
+\end{itemize}
+
+5. Lack of Integrated Dashboard \& Analytics
+
+Research often focuses on detection models but ignores real-world usability elements such as:
+
+\begin{itemize}
+\item Alert logging
+\item Incident querying
+\item Live dashboards
+\item Worker behavior timelines
+\end{itemize}
+
+VisionSafe 360 directly addresses these gaps.
+
+F. Contribution of VisionSafe 360
+
+VisionSafe 360 provides the following contributions:
+
+1. Multi-Hazard Real-Time Monitoring System
+
+A unified pipeline that detects:
+
+\begin{itemize}
+\item PPE compliance
+\item Fall events
+\item Worker–vehicle proximity risks
+\item Ergonomic posture deviations
+\end{itemize}
+
+2. Optimized for Existing CCTV Infrastructure
+
+No special sensors or IR cameras required; works on standard RGB streams (RTSP).
+
+3. Efficiency-Focused Deep Learning Models
+
+YOLO-based detection + lightweight temporal networks to enable near real-time operation (>15 FPS on common GPUs).
+
+4. Practical Dashboard for Safety Officers
+
+Including:
+
+\begin{itemize}
+\item Real-time alerts
+\item Event logs
+\item Video evidence
+\item Hazard analytics
+\end{itemize}
+
+\textbf{ 5. Scalable and Modular Architecture}
+
+Each module (PPE, fall, tracking, posture) can be improved independently.
+
+\textbf{Research Gap vs. VisionSafe 360 Contributions}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+Feature & Manual Monitoring & Commercial AI Platforms & VisionSafe 360 (Proposed) \\
+\hline
+Real-Time Detection & No (Reactive) & Yes & Yes \\
+\hline
+Multi-Hazard Support & High (Human judgment) & Varies (Usually Modular/Paid) & Unified (PPE, Falls, Proximity, Ergo) \\
+\hline
+Cost & High (Man-hours) & High (Licensing/Subscription) & Low (Open Source/Standard Hardware) \\
+\hline
+Data Privacy & N/A & Cloud-based (Data leaves site) & On-Premises (Data stays local) \\
+\hline
+Customisation & Flexible & Low (Proprietary) & High (Modular Architecture) \\
+\hline
+\end{tabular}
+\end{table}

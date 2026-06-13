@@ -1,0 +1,89 @@
+\chapter{Introduction}
+
+\section{Overview}
+
+Protecting worker health and safety in industrial and construction environments is a critical priority due to the presence of heavy machinery, elevated work areas, moving vehicles, and repetitive manual tasks. Traditional monitoring methods rely heavily on manual supervision or reviewing CCTV footage only after an incident occurs, which limits timely prevention.
+
+\textbf{VisionSafe 360} is proposed as an AI-powered workplace safety monitoring system that transforms standard CCTV cameras into an active, real-time safety assistant. Using computer vision and deep learning, the system automatically detects PPE compliance, identifies fall events, monitors worker proximity to mobile equipment, and analyses posture to predict ergonomic risks. Instead of replacing safety personnel, the system enhances situational awareness and enables faster intervention to prevent accidents.
+
+\section{Problem Statement}
+
+Occupational accidents and work-related injuries remain persistent challenges, especially in high-risk settings such as construction sites, manufacturing facilities, and logistics centres. According to the International Labour Organization (ILO), over 2.3 million women and men die at work each year due to work-related accidents or diseases, with the construction industry disproportionately represented in these statistics. A single unsafe action or unrecognised hazard may trigger incidents with substantial human and economic costs. Although safety regulations and standards exist, their effectiveness depends on continuous monitoring and timely corrective action.
+
+In practice, many organisations rely on:
+
+\begin{itemize}
+\item \textbf{Manual supervision:} Safety officers patrol and visually inspect work areas.
+\item \textbf{Periodic inspections:} Conducted via paper or digital checklists.
+\item \textbf{Post-incident investigations:} Based on reviewing CCTV recordings.
+\end{itemize}
+
+However, these approaches are constrained by limited human attention, discontinuities between inspections, and a predominantly reactive incident-review model. As a result, short-duration PPE violations, near-miss events, and prolonged exposure to ergonomically harmful postures can go unnoticed and unrecorded. These constraints are often more pronounced in developing regions, including Egypt, due to limited access to advanced safety technologies and the cost of proprietary AI solutions. Therefore, there is a clear need for a cost-effective solution that can operate on existing camera infrastructure while delivering real-time safety-relevant analytics.
+
+\textbf{VisionSafe 360} responds to this need by augmenting current monitoring practices through automated detection of safety-related behaviours and conditions.
+
+\section{Project Motivation}
+
+The motivation for this project is both practical and research driven. Practically, modern safety management increasingly expects that advances in computer vision and machine learning will be leveraged to reduce incident rates and improve monitoring effectiveness. Importantly, the availability of relatively low-cost computing hardware and open-source frameworks makes intelligent video analytics feasible without replacing existing infrastructure.
+
+From a research and development perspective, VisionSafe 360 provides an opportunity to integrate multiple computer vision tasks object detection, multi-object tracking, temporal event recognition, and human pose estimation within a unified system aimed at real-world deployment. Rather than treating each hazard type independently, the project explores a multi-hazard monitoring paradigm. The overarching objective is to demonstrate how AI can be applied in a practically relevant, transparent, and adaptable manner to improve occupational safety in environments with constrained access to commercial solutions.
+
+\section{Project Objectives}
+
+The primary objective of VisionSafe 360 is to develop and evaluate an AI-based system that supports workplace safety monitoring by analysing live or recorded video streams from existing cameras. This objective is operationalised through the following goals:
+
+\subsection{Enhancing Hazard Awareness}
+
+\textbf{PPE Recognition:} Develop and deploy a deep learning–based object detection model (e.g., YOLO-based architecture) to recognise key PPE items and distinguish compliant from non-compliant workers in real time.
+
+\textbf{Fall Detection:} Implement a fall-detection module based on temporal information from video sequences to identify potential fall events and reduce detection latency.
+
+\textbf{Proximity and Collision Risk Detection:} Integrate multi-object tracking to estimate distances between workers and mobile equipment, generating alerts when safety thresholds are violated.
+
+\textbf{Posture and Ergonomic Risk Assessment:} Apply human pose estimation to infer joint positions and approximate ergonomic risk indicators, including prolonged or extreme trunk and limb angles.
+
+\subsection{Supporting Safety Officers}
+
+\begin{itemize}
+\item \textbf{Actionable Alerts:} Present detected events in a structured format that specifies event type, location, and time, with visual evidence where appropriate.
+\item \textbf{Incident Logging and Querying:} Maintain persistent records and enable queries by date, location, hazard category, and severity to support reporting and trend analysis.
+\end{itemize}
+
+\subsection{Technical Performance and Reliability}
+
+\begin{itemize}
+\item \textbf{Real-Time / Near Real-Time Processing:} Optimise the pipeline to achieve acceptable latency (aiming for >15 FPS on standard GPU hardware) for live monitoring.
+\item \textbf{Robustness Under Real Conditions:} Evaluate and improve performance across realistic conditions (lighting variation, occlusion, and diverse camera viewpoints).
+\item \textbf{Scalability and Modularity:} Design a modular architecture enabling component replacement or upgrades without major restructuring.
+\end{itemize}
+
+\subsection{Integration into Real Workplaces}
+
+\begin{itemize}
+\item \textbf{Compatibility with Existing Cameras:} Support standard CCTV streams (RTSP) without specialised imaging hardware.
+\item \textbf{Deployment Pathway:} Structure software to support future migration to local servers or edge devices.
+\end{itemize}
+
+\subsection{System Development Activities}
+
+\begin{itemize}
+\item \textbf{AI Model Development:} Train and fine-tune PPE and fall-recognition models using a mix of public and custom data.
+\item \textbf{Multi-Component Integration:} Combine detection, tracking, temporal modelling, and pose estimation into a coherent pipeline.
+\item \textbf{Backend and Dashboard Implementation:} Build backend orchestration and a web dashboard for live streams, overlays, alerting, and analytics.
+\item \textbf{Testing and Validation:} Systematically evaluate model performance using standard metrics (Precision, Recall, mAP) and validate system stability through stress testing on video streams of varying quality.
+\end{itemize}
+
+\section{Scope and Limitations}
+
+To ensure project feasibility, the scope is defined as follows:
+
+\textbf{Scope:} The system focuses on visual hazards detectable in standard RGB video streams within industrial/construction zones. It covers four specific modules: PPE (Helmet/Vest), Falls, Person-Vehicle Proximity, and basic Posture Analysis.
+
+\textbf{Limitations:}
+
+\begin{itemize}
+\item \textbf{Lighting:} The system requires adequate lighting; performance may degrade in low-light or night conditions without infrared support.
+\item \textbf{Occlusion:} Heavy occlusion (e.g., a worker fully hidden behind a wall) prevents detection, a known limitation of computer vision.
+\item \textbf{Internet/Network:} While processing is local, remote dashboard access depends on network stability.
+\item \textbf{Hardware:} Real-time performance is contingent upon the availability of a CUDA-enabled GPU.
+\end{itemize}

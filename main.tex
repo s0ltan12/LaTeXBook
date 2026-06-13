@@ -1,0 +1,105 @@
+% !TEX program = xelatex
+\documentclass[12pt, a4paper]{report}
+
+% --- Packages ---
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{pdflscape}
+\usepackage{float}
+\usepackage{array}
+\usepackage{longtable}
+
+% Path to images
+\graphicspath{{images/}{UIUX/}}
+
+% --- Language and Fonts ---
+\setmainlanguage{english}
+\setotherlanguage{arabic}
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{Times New Roman}
+\newfontfamily\arabicfont[Script=Arabic]{Times New Roman}
+
+% --- Formatting Settings ---
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+\onehalfspacing
+
+% --- Font Size Rules (Strict Implementation) ---
+\titleformat{\chapter}[display]
+	{\normalfont\bfseries\fontsize{16}{19}\selectfont}
+	{\chaptertitlename\ \thechapter}
+	{1em}
+	{}
+\titleformat{name=\chapter,numberless}[display]
+	{\normalfont\bfseries\fontsize{16}{19}\selectfont}
+	{}
+	{0pt}
+	{}
+\titlespacing*{\chapter}{0pt}{20pt}{20pt}
+
+\titleformat{\section}
+	{\normalfont\bfseries\fontsize{14}{17}\selectfont}
+	{\thesection}
+	{1em}
+	{}
+\titlespacing*{\section}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+\titleformat{\subsection}
+	{\normalfont\bfseries\fontsize{13}{16}\selectfont}
+	{\thesubsection}
+	{1em}
+	{}
+\titlespacing*{\subsection}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\newcommand{\safeincludegraphics}[2][]{%
+	\IfFileExists{#2}{%
+		\includegraphics[#1]{#2}%
+	}{%
+		\fbox{%
+			\parbox[c][0.22\textheight][c]{0.9\linewidth}{%
+				\centering\textbf{Missing image:}\\ \texttt{#2}%
+			}%
+		}%
+	}%
+}
+
+% --- START DOCUMENT ---
+\begin{document}
+
+% =========================================================
+% FRONT MATTER
+% =========================================================
+\include{frontmatter}
+
+% =========================================================
+% LISTS
+% =========================================================
+\tableofcontents
+\listoffigures
+\listoftables
+
+% =========================================================
+% MAIN CHAPTERS
+% =========================================================
+\include{chapters/chapter01}
+\include{chapters/chapter02}
+\include{chapters/chapter03}
+\include{chapters/chapter04}
+
+% =========================================================
+% BIBLIOGRAPHY
+% =========================================================
+\IfFileExists{references.bib}{%
+	\bibliographystyle{ieeetr}
+	\bibliography{references}
+}{}
+
+\end{document}
