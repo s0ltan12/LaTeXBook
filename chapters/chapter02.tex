@@ -143,9 +143,8 @@ Although several commercial and research-based systems exist for workplace safet
 \begin{figure}[H]
 \centering
 \companylogo{images/img_002.png}
+\caption{Intenseye Company}
 \end{figure}
-
-Figure [1] Intenseye Company
 
 is a cloud-based platform focused on monitoring PPE compliance. It offers high detection accuracy and a user-friendly dashboard that simplifies safety management. Nevertheless, the system relies on cloud streaming, making it unsuitable in environments with limited network bandwidth or strict privacy requirements.
 
@@ -154,9 +153,8 @@ is a cloud-based platform focused on monitoring PPE compliance. It offers high d
 \begin{figure}[H]
 \centering
 \companylogo{images/img_003.png}
+\caption{Protex Company}
 \end{figure}
-
-Figure [2] Protex Company
 
 is another commercial solution that tracks safety incidents such as PPE violations and near-miss events. While it delivers enterprise-grade analytics, it does not support posture or ergonomic assessment, and its high cost can be prohibitive for many companies.
 
@@ -165,9 +163,8 @@ is another commercial solution that tracks safety incidents such as PPE violatio
 \begin{figure}[H]
 \centering
 \companylogo{images/img_004.png}
+\caption{StarVid.IO Company}
 \end{figure}
-
-Figure [3] StarVid.IO Company
 
 is an AI-based safety analytics platform designed for construction sites. It offers robust hazard classification capabilities and can detect unsafe acts effectively, providing safety officers with actionable insights. However, it is a paid service and lacks flexibility for local deployment, which limits its accessibility for smaller organisations or projects in regions with limited resources.
 
@@ -176,9 +173,8 @@ is an AI-based safety analytics platform designed for construction sites. It off
 \begin{figure}[H]
 \centering
 \companylogo{images/img_005.png}
+\caption{Ultralytics Company}
 \end{figure}
-
-Figure [4] Ultralytics Company
 
 use object detection models for PPE and hazard detection. Modern versions like \textbf{Ultralytics YOLOv5 and YOLOv8} offer fast, accurate real-time detection and edge deployment. However, most academic implementations focus only on detection and lack dashboards, alerts, or multi-hazard integration, limiting practical workplace use.
 
@@ -266,13 +262,17 @@ Including:
 
 Each module (PPE, fall, tracking, posture) can be improved independently.
 
-\textbf{Research Gap vs. VisionSafe 360 Contributions}
-
 \begin{table}[H]
 \centering
-\begin{tabular}{|l|l|l|l|}
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|
+>{\RaggedRight\arraybackslash}p{0.18\linewidth}|
+>{\RaggedRight\arraybackslash}p{0.21\linewidth}|
+>{\RaggedRight\arraybackslash}p{0.24\linewidth}|
+>{\RaggedRight\arraybackslash}p{0.24\linewidth}|}
 \hline
-Feature & Manual Monitoring & Commercial AI Platforms & VisionSafe 360 (Proposed) \\
+\textbf{Feature} & \textbf{Manual Monitoring} & \textbf{Commercial AI Platforms} & \textbf{VisionSafe 360 (Proposed)} \\
 \hline
 Real-Time Detection & No (Reactive) & Yes & Yes \\
 \hline
@@ -285,4 +285,5 @@ Data Privacy & N/A & Cloud-based (Data leaves site) & On-Premises (Data stays lo
 Customisation & Flexible & Low (Proprietary) & High (Modular Architecture) \\
 \hline
 \end{tabular}
+\caption{\textbf{Research gap vs. VisionSafe 360 contributions}}
 \end{table}

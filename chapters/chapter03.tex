@@ -78,10 +78,9 @@ The project follows a modular development lifecycle designed to allow parallel d
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_006.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_033.png}
+\caption{Gantt Chart of Project Schedule}
 \end{figure}
-
-\textbf{ Figure }\textbf{[5]}\textbf{ Gantt Chart of Project Schedule}
 
 \section{Functional Requirements}
 
@@ -171,9 +170,13 @@ Data at Rest: Encrypted storage for snapshots; hashed passwords.
 
 \begin{table}[H]
 \centering
-\begin{tabular}{|l|l|}
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|
+>{\RaggedRight\arraybackslash}p{0.24\linewidth}|
+>{\RaggedRight\arraybackslash}p{0.68\linewidth}|}
 \hline
-Actor & Responsibilities \\
+\textbf{Actor} & \textbf{Responsibilities} \\
 \hline
 System Administrator & System config, user management, camera setup, health monitoring. \\
 \hline
@@ -186,6 +189,7 @@ Data Analyst & Reviews long-term trends, generates safety KPIs and reports. \\
 AI Engine & Internal System Actor. Performs unified hazard detection (PPE, falls, proximity, posture), anonymization, severity classification, and triggers events. \\
 \hline
 \end{tabular}
+\caption{\textbf{System actors and roles}}
 \end{table}
 
 \section{Use Case Modeling}
@@ -198,10 +202,9 @@ While the \textbf{AI Engine} executes hazard detection and posture analysis in a
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_007.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_007.png}
+\caption{Key Use Case Scenarios}
 \end{figure}
-
-\textbf{Figure [6] - Key Use Case Scenarios}
 
 \textbf{Hazard Detection:} The Edge AI detects a "Fall". The system validates confidence, classifies severity, checks the cooldown timer, triggers the local siren, blurs faces in the frame, and uploads the event to the Backend as an emergency incident.
 
@@ -219,10 +222,9 @@ In parallel, or rather as part of the unified hazard analysis, posture-related e
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_008.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_008.png}
+\caption{Activity Diagram}
 \end{figure}
-
-\textbf{Figure [7] – Activity Diagram}
 
 \textbf{Flow Summary:}
 
@@ -244,10 +246,9 @@ The Context Diagram (Level 0) defines the system boundary of VisionSafe 360. It 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_009.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_009.png}
+\caption{Context Diagram}
 \end{figure}
-
-\textbf{Figure [8] – Context Diagram }
 
 \textbf{Level 1 Diagram}
 
@@ -263,10 +264,9 @@ The Level 1 DFD decomposes the system into its primary subsystems to show detail
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_010.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_010.png}
+\caption{Data Flow Diagram (Level 1)}
 \end{figure}
-
-\textbf{Figure [9] – Data Flow Diagram ( Level 1)}
 
 \section{Entity Relationship Diagram (ERD)}
 
@@ -274,10 +274,9 @@ The ERD visualizes the database schema designed to support the system's data per
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_011.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_011.png}
+\caption{Entity Relationship Diagram}
 \end{figure}
-
-\textbf{Figure [10] – Entity Relationship Diagram}
 
 \textbf{Key Entities:}
 
@@ -313,10 +312,9 @@ The PostureAnalyzer and HazardAnalyzer jointly implement a unified hazard detect
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_012.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_012.png}
+\caption{Class Diagram}
 \end{figure}
-
-\textbf{Figure [11] – Class Diagram}
 
 \section{Sequence Diagram}
 
@@ -326,10 +324,9 @@ In this workflow, a unified hazard event is created, containing both the hazard 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_013.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_013.png}
+\caption{Sequence Diagram}
 \end{figure}
-
-\textbf{Figure [12] – Sequence Diagram}
 
 \textbf{Sequence Steps:}
 
@@ -355,10 +352,9 @@ This State Transition Diagram models the lifecycle of an Incident object, ensuri
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_014.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_014.png}
+\caption{State Diagram}
 \end{figure}
-
-\textbf{Figure [13] – State Diagram}
 
 \textbf{Active:} The hazard is currently detected; alerts are firing.
 
@@ -382,10 +378,9 @@ On the Backend Server, an API Gateway exposes secured endpoints and routes reque
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_015.png}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_015.png}
+\caption{Component Diagram}
 \end{figure}
-
-\textbf{Figure [14] – Component Diagram}
 
 \section{Deployment Diagram}
 
@@ -399,10 +394,9 @@ This deployment layout supports scalability (by adding Edge nodes per site/camer
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{images/img_016.jpeg}
+\includegraphics[width=0.95\linewidth,height=0.72\textheight,keepaspectratio]{images/img_016.jpeg}
+\caption{Deployment Diagram}
 \end{figure}
-
-\textbf{Figure [15] – Deployment Diagram}
 
 \section{API Specification Summary}
 
@@ -425,5 +419,3 @@ WS /events: A WebSocket endpoint providing a live feed of emergency incident eve
 This chapter provided a comprehensive analysis of VisionSafe 360. It defined the problem scope, analyzed operational constraints, and detailed the functional and non-functional requirements necessary for a robust safety solution. The system architecture-prioritizing \textbf{Edge computing} for latency and privacy—was modeled through standard UML diagrams (Use Case, Activity, Class, Sequence) and Data Flow Diagrams.
 
 The design incorporates a \textbf{unified, AI-driven hazard detection pipeline} covering four hazard categories: \textbf{PPE detection}, \textbf{fall detection}, \textbf{unsafe proximity monitoring}, and \textbf{Posture-related Ergonomic Risk Analysis}. A severity-aware alerting policy clearly distinguishes between emergency incident handling—reserved for high-severity, acute hazards—and continuous, preventive ergonomic risk monitoring for posture-related hazards. Within this architecture, acute hazards (PPE violations, falls, unsafe proximity) drive the real-time emergency alerting workflow, whereas posture-related ergonomic deviations are continuously monitored and recorded as low-severity events for long-term trend analysis and preventive ergonomics, thereby supporting HSE teams without introducing additional alert fatigue. These design specifications lay the groundwork for \textbf{Chapter 4}, which will detail the implementation of the inference pipelines, backend services, and interface integration.
-
-\textbf{Chapter 4: Project Design }

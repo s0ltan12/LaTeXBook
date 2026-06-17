@@ -1,0 +1,234 @@
+\chapter{Testing, Evaluation, and Results}
+
+\section{Testing Objectives}
+
+This chapter presents the testing, evaluation, and results of \textbf{VisionSafe360}. The purpose of testing was to verify that the implemented system can detect workplace safety hazards correctly, generate alerts within an acceptable time, and support safety monitoring through the dashboard and backend services.
+
+The testing process focused on the four main hazard detection modules implemented in the system:
+
+\begin{itemize}
+\item PPE violation detection
+\item Forklift proximity detection
+\item Fall detection
+\item Ergonomic posture risk analysis
+\end{itemize}
+
+The main objectives of testing were to ensure that the system could process video streams in near real time, detect safety hazards with acceptable reliability, reduce false alerts through persistence logic, and store incidents correctly for dashboard review. Testing also aimed to confirm that the edge AI pipeline, backend APIs, and dashboard interface work together as a complete workplace safety monitoring platform.
+
+\section{Testing Environment}
+
+The system was tested using the same development hardware used during implementation. The testing environment included GPU acceleration for AI inference and local execution of the backend and dashboard services. Table~\ref{tab:chapter6-testing-environment} summarizes the testing environment.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.65}
+\begin{tabular}{|>{\centering\arraybackslash}p{0.34\linewidth}|>{\centering\arraybackslash}p{0.54\linewidth}|}
+\hline
+\textbf{Component} & \textbf{Specification} \\
+\hline
+\textbf{CPU} & Intel Core i5-13420H \\
+\hline
+\textbf{GPU} & NVIDIA GeForce RTX 4050 Laptop GPU \\
+\hline
+\textbf{RAM} & 16 GB \\
+\hline
+\textbf{Operating Mode} & Local prototype testing with edge AI inference \\
+\hline
+\textbf{Input Sources} & Video files, webcam streams, and camera-like test feeds \\
+\hline
+\end{tabular}
+\caption{\textbf{Testing environment}}
+\label{tab:chapter6-testing-environment}
+\end{table}
+
+The system was evaluated using recorded and live-like video scenarios representing common industrial safety situations. These scenarios included workers wearing or missing PPE, workers moving near forklifts, simulated fall events, and workers performing postures that may lead to ergonomic risk.
+
+\section{Test Cases}
+
+Test cases were prepared to validate the main functional behavior of the system. Each test case focused on a specific module or integration path. Table~\ref{tab:chapter6-test-cases} presents the main test cases used during evaluation.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.55}
+\begin{tabular}{|>{\centering\arraybackslash}p{0.2\linewidth}|>{\centering\arraybackslash}p{0.32\linewidth}|>{\centering\arraybackslash}p{0.36\linewidth}|}
+\hline
+\textbf{Test Case} & \textbf{Scenario} & \textbf{Expected Result} \\
+\hline
+\textbf{TC-01} & Worker without required PPE & System detects missing PPE and generates a violation after persistence threshold \\
+\hline
+\textbf{TC-02} & Worker wearing required PPE & System detects compliance and avoids unnecessary violation alerts \\
+\hline
+\textbf{TC-03} & Worker enters forklift danger zone & System detects unsafe proximity and generates an alert after one second \\
+\hline
+\textbf{TC-04} & Worker falls and remains on ground & System confirms fall after the configured persistence duration \\
+\hline
+\textbf{TC-05} & Worker bends temporarily & System avoids false fall alert when posture returns to normal quickly \\
+\hline
+\textbf{TC-06} & High-risk ergonomic posture & System calculates posture risk and logs ergonomic alert data \\
+\hline
+\textbf{TC-07} & Backend incident creation & Detected hazard is stored and becomes visible in the dashboard \\
+\hline
+\textbf{TC-08} & Dashboard live update & New alert appears in the monitoring interface without manual refresh \\
+\hline
+\end{tabular}
+\caption{\textbf{Main system test cases}}
+\label{tab:chapter6-test-cases}
+\end{table}
+
+The test cases covered both module-level behavior and end-to-end system behavior. This helped verify not only the accuracy of individual AI models, but also the reliability of the full incident workflow from detection to dashboard visualization.
+
+\section{Evaluation Metrics}
+
+Different metrics were used to evaluate the AI modules and system performance. Object detection modules were evaluated using precision, recall, F1 score, and mean Average Precision (mAP). Runtime behavior was evaluated using FPS, latency, and alert delay.
+
+Table~\ref{tab:chapter6-evaluation-metrics} describes the main evaluation metrics used in the project.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.55}
+\begin{tabular}{|>{\centering\arraybackslash}p{0.3\linewidth}|>{\centering\arraybackslash}p{0.58\linewidth}|}
+\hline
+\textbf{Metric} & \textbf{Description} \\
+\hline
+\textbf{Precision} & Measures how many detected positive cases were correct \\
+\hline
+\textbf{Recall} & Measures how many actual positive cases were detected \\
+\hline
+\textbf{F1 Score} & Harmonic mean of precision and recall \\
+\hline
+\textbf{mAP50} & Mean Average Precision at IoU threshold 0.50 \\
+\hline
+\textbf{mAP50-95} & Mean Average Precision averaged across IoU thresholds from 0.50 to 0.95 \\
+\hline
+\textbf{FPS} & Number of video frames processed per second \\
+\hline
+\textbf{Latency} & Time required to process a frame or generate a response \\
+\hline
+\textbf{Alert Delay} & Time between hazard detection and confirmed alert generation \\
+\hline
+\end{tabular}
+\caption{\textbf{Evaluation metrics}}
+\label{tab:chapter6-evaluation-metrics}
+\end{table}
+
+These metrics provide a balanced view of model quality and practical deployment performance. Accuracy alone is not sufficient for a safety monitoring system, because real-time response and alert stability are also important.
+
+\section{Results Presentation}
+
+\subsection{PPE Detection Results}
+
+The PPE detection module was evaluated using the trained YOLOv9-e model on the SH17 PPE dataset. The results show that the model achieved acceptable detection performance for prototype use, especially for visible PPE items such as helmets and vests. Table~\ref{tab:chapter6-ppe-results} summarizes the PPE detection results.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.65}
+\begin{tabular}{|>{\centering\arraybackslash}p{0.34\linewidth}|>{\centering\arraybackslash}p{0.54\linewidth}|}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+\textbf{Precision} & 81.0\% \\
+\hline
+\textbf{Recall} & 65.0\% \\
+\hline
+\textbf{mAP50} & 70.9\% \\
+\hline
+\textbf{mAP50-95} & 48.7\% \\
+\hline
+\end{tabular}
+\caption{\textbf{PPE detection results}}
+\label{tab:chapter6-ppe-results}
+\end{table}
+
+The precision result indicates that most generated PPE detections were correct. The lower recall shows that some PPE items may be missed, especially under occlusion, small object size, or poor lighting. For this reason, alert persistence was used before generating a PPE violation.
+
+\subsection{Forklift Proximity Detection Results}
+
+The forklift proximity module used YOLOv8m for detecting workers and forklifts. The model results are shown in Table~\ref{tab:chapter6-proximity-results}.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.65}
+\begin{tabular}{|>{\centering\arraybackslash}p{0.34\linewidth}|>{\centering\arraybackslash}p{0.54\linewidth}|}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+\textbf{Precision} & 86.14\% \\
+\hline
+\textbf{Recall} & 78.83\% \\
+\hline
+\textbf{F1 Score} & 82.32\% \\
+\hline
+\textbf{mAP50} & 87.22\% \\
+\hline
+\textbf{mAP50-95} & 58.87\% \\
+\hline
+\end{tabular}
+\caption{\textbf{Forklift proximity detection results}}
+\label{tab:chapter6-proximity-results}
+\end{table}
+
+The proximity detection model achieved stronger results than the PPE model. This is mainly because forklifts and workers are larger visual objects compared with small PPE items. However, distance estimation remains affected by camera perspective and calibration quality.
+
+\subsection{Fall Detection Results}
+
+The fall detection module was evaluated using simulated fall scenarios and normal posture scenarios such as standing, walking, bending, and crouching. The system used a pose-aware rule-based approach and confirmed a fall only when abnormal posture persisted for approximately 2.5 seconds.
+
+The tests showed that the fall state machine helped reduce false alerts from temporary movements. Short bending or crouching movements were usually rejected because they did not remain in the fall candidate state long enough. Confirmed falls were escalated only after the persistence threshold, making the module more stable for real-time monitoring.
+
+\subsection{Ergonomic Posture Results}
+
+The ergonomic posture module used pose keypoints to estimate joint angles and calculate RULA and REBA risk levels. The module was tested using postures involving trunk bending, awkward upper limb positions, and sustained poor posture.
+
+The results showed that the posture module can identify high-risk body positions and log ergonomic alerts for dashboard review. Unlike fall, PPE, and forklift proximity events, ergonomic risks were treated as preventive safety records rather than emergency alarms. This design avoids alert fatigue while still helping HSE engineers identify repeated harmful movements and high-risk work zones.
+
+\subsection{Runtime Performance Results}
+
+Runtime testing measured the ability of the system to process video streams and generate alerts within practical time limits. Table~\ref{tab:chapter6-runtime-results} presents the runtime performance and alert timing results.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.55}
+\begin{tabular}{|>{\centering\arraybackslash}p{0.24\linewidth}|>{\centering\arraybackslash}p{0.42\linewidth}|>{\centering\arraybackslash}p{0.22\linewidth}|}
+\hline
+\textbf{Category} & \textbf{Metric} & \textbf{Value} \\
+\hline
+\textbf{Video Input} & Input Video FPS & 31 FPS \\
+\hline
+\textbf{Inference} & Runtime FPS & Approximately 15 FPS \\
+\hline
+\textbf{Inference} & Median Latency & 11.3 ms \\
+\hline
+\textbf{Inference} & P95 Latency & 19.3 ms \\
+\hline
+\textbf{Alert Timing} & Fall Alert Delay & 2.5 s \\
+\hline
+\textbf{Alert Timing} & Proximity Alert Delay & 1.0 s \\
+\hline
+\textbf{Alert Timing} & PPE Violation Persistence & 3.0 s \\
+\hline
+\end{tabular}
+\caption{\textbf{Runtime performance and alert timing}}
+\label{tab:chapter6-runtime-results}
+\end{table}
+
+The runtime results indicate that the system is capable of near real-time monitoring on the tested hardware. The alert delays are intentional and are used to reduce false positives by requiring the hazard to persist before an incident is created.
+
+\section{Discussion of Results}
+
+The testing results demonstrate that VisionSafe360 is practical as a prototype for AI-based workplace safety monitoring. The strongest measured performance was achieved by the forklift proximity detection model, which reached 87.22\% mAP50 and 82.32\% F1 score. This indicates that the system can reliably detect larger industrial objects such as workers and forklifts.
+
+The PPE detection model achieved 81.0\% precision and 70.9\% mAP50. These results are acceptable for a prototype, but the recall value of 65.0\% shows that additional dataset improvement and camera-specific tuning would be useful. PPE objects are often small, partially hidden, or affected by lighting, which makes detection more difficult than detecting full-body workers or forklifts.
+
+The fall detection module showed stable behavior because of the state-machine design. Instead of generating alerts from a single unusual frame, the system waits for abnormal posture to persist. This reduces false positives caused by short actions such as bending, kneeling, or crouching.
+
+The ergonomic posture module supports the preventive side of the system. It does not replace expert ergonomic assessment, but it provides continuous indicators that can help HSE teams identify repeated risky movements. This is useful because many musculoskeletal risks develop over time and are not usually captured by traditional incident reporting.
+
+Overall, the testing phase confirmed that VisionSafe360 meets the main project objectives: multi-hazard detection, real-time processing, alert generation, incident persistence, and dashboard visualization. The results also highlight areas for future improvement, including larger datasets, better low-light robustness, camera calibration support, and more extensive field testing in real industrial environments.
+
+\section{Chapter Summary}
+
+This chapter presented the testing and evaluation of VisionSafe360. The system was tested across PPE detection, forklift proximity detection, fall detection, ergonomic posture analysis, backend integration, and dashboard updates.
+
+The measured results showed that the system achieved near real-time performance, with approximately 15 FPS runtime processing and controlled alert delays for improved stability. The object detection results confirmed that the prototype can detect key hazards with acceptable accuracy, while the fall and ergonomic modules showed practical behavior through persistence logic and posture analysis.
+
+These results demonstrate that VisionSafe360 is a feasible AI-based safety monitoring prototype. The next development stage should focus on larger-scale field testing, additional data collection, improved camera calibration, and further optimization for deployment in real industrial environments.

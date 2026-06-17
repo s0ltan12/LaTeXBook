@@ -1,14 +1,23 @@
 import argparse
-import os
 import re
 from pathlib import Path
 
 from docx import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.oxml.table import CT_Tbl
 from docx.oxml.text.paragraph import CT_P
+from docx.shared import Emu
 from docx.table import Table
 from docx.text.paragraph import Paragraph
+
+
+ALIGNMENTS = {
+    WD_ALIGN_PARAGRAPH.LEFT: "raggedright",
+    WD_ALIGN_PARAGRAPH.CENTER: "centering",
+    WD_ALIGN_PARAGRAPH.RIGHT: "raggedleft",
+    WD_ALIGN_PARAGRAPH.JUSTIFY: "justifying",
+}
 
 
 def iter_block_items(doc):
@@ -21,8 +30,6 @@ def iter_block_items(doc):
 
 
 def escape_latex(text):
-    if not text:
-        return ""
     replacements = {
         "\\": r"\textbackslash{}",
         "&": r"\&",
@@ -35,263 +42,257 @@ def escape_latex(text):
         "~": r"\textasciitilde{}",
         "^": r"\textasciicircum{}",
     }
-    result = []
-    for ch in text:
-        result.append(replacements.get(ch, ch))
-    return "".join(result)
+    return "".join(replacements.get(ch, ch) for ch in text)
 
 
-def normalize_text(text):
-    return " ".join(text.split()).strip()
+def length_pt(value, default=None):
+    if value is None:
+        return default
+    return value.pt
 
 
-def convert_runs(paragraph):
+def emu_pt(value):
+    return Emu(int(value)).pt
+
+
+def attr_int(element, attr_name, default=0):
+    value = element.get(qn(attr_name))
+    return int(value) if value is not None else default
+
+
+def para_spacing(paragraph):
+    fmt = paragraph.paragraph_format
+    before = length_pt(fmt.space_before, 0) or 0
+    after = length_pt(fmt.space_after, 0) or 0
+    line = fmt.line_spacing
+    line_pt = None
+    if hasattr(line, "pt"):
+        line_pt = line.pt
+    elif isinstance(line, (int, float)):
+        line_pt = 12 * float(line)
+    return before, after, line_pt
+
+
+def para_indent(paragraph):
+    fmt = paragraph.paragraph_format
+    left = length_pt(fmt.left_indent, 0) or 0
+    first = length_pt(fmt.first_line_indent, 0) or 0
+    right = length_pt(fmt.right_indent, 0) or 0
+    return left, first, right
+
+
+def paragraph_env_start(paragraph):
+    before, after, line_pt = para_spacing(paragraph)
+    left, first, right = para_indent(paragraph)
+    align = ALIGNMENTS.get(paragraph.alignment)
+    settings = [
+        rf"\setlength{{\parskip}}{{{after:.2f}pt}}",
+        rf"\setlength{{\leftskip}}{{{left:.2f}pt}}",
+        rf"\setlength{{\rightskip}}{{{right:.2f}pt}}",
+        rf"\setlength{{\parindent}}{{{max(first, 0):.2f}pt}}",
+    ]
+    if before:
+        settings.insert(0, rf"\vspace*{{{before:.2f}pt}}")
+    if line_pt:
+        settings.append(rf"\fontsize{{12}}{{{line_pt:.2f}}}\selectfont")
+    if align:
+        settings.append("\\" + align)
+    return r"\begingroup " + " ".join(settings)
+
+
+def run_size_pt(run):
+    if run.font.size:
+        return run.font.size.pt
+    style_font = getattr(run.style, "font", None)
+    if style_font and style_font.size:
+        return style_font.size.pt
+    return None
+
+
+def wrap_run_format(run, text):
+    size = run_size_pt(run)
+    if size:
+        text = rf"{{\fontsize{{{size:.2f}}}{{{size * 1.2:.2f}}}\selectfont {text}}}"
+    if run.bold:
+        text = rf"\textbf{{{text}}}"
+    if run.italic:
+        text = rf"\textit{{{text}}}"
+    if run.underline:
+        text = rf"\underline{{{text}}}"
+    if run.font.color and run.font.color.rgb:
+        color = str(run.font.color.rgb)
+        text = rf"\textcolor[HTML]{{{color}}}{{{text}}}"
+    return text
+
+
+def extract_run_images(run, paragraph, image_dir, image_counter):
     parts = []
-    for run in paragraph.runs:
-        if not run.text:
-            continue
-        if run.text.isspace():
-            parts.append(" ")
-            continue
-        text = escape_latex(run.text)
-        if run.bold and run.italic:
-            text = f"\\textbf{{\\textit{{{text}}}}}"
-        elif run.bold:
-            text = f"\\textbf{{{text}}}"
-        elif run.italic:
-            text = f"\\textit{{{text}}}"
-        parts.append(text)
-    joined = "".join(parts)
-    return normalize_text(joined)
-
-
-def extract_images(paragraph, image_dir, image_counter):
-    image_paths = []
-    for run in paragraph.runs:
-        blips = run.element.xpath(".//a:blip")
+    drawings = run.element.xpath(".//w:drawing")
+    for drawing in drawings:
+        blips = drawing.xpath(".//a:blip")
+        extents = drawing.xpath(".//wp:extent")
         for blip in blips:
             r_id = blip.get(qn("r:embed"))
+            if not r_id:
+                continue
             part = paragraph.part.related_parts[r_id]
             ext = Path(part.partname).suffix.lower() or ".png"
             image_counter[0] += 1
-            filename = f"img_{image_counter[0]:03d}{ext}"
+            filename = f"docx_img_{image_counter[0]:03d}{ext}"
             output_path = image_dir / filename
-            with output_path.open("wb") as f:
-                f.write(part.blob)
-            image_paths.append(output_path)
-    return image_paths
+            output_path.write_bytes(part.blob)
+            rel_path = output_path.as_posix()
+            if extents:
+                width = emu_pt(extents[0].get("cx"))
+                height = emu_pt(extents[0].get("cy"))
+                parts.append(
+                    rf"\includegraphics[width={width:.2f}pt,height={height:.2f}pt,keepaspectratio]{{{rel_path}}}"
+                )
+            else:
+                parts.append(rf"\includegraphics{{{rel_path}}}")
+    return parts
 
 
-def convert_table(table):
-    rows = []
-    max_cols = 0
-    for row in table.rows:
-        row_cells = [normalize_text(cell.text) for cell in row.cells]
-        max_cols = max(max_cols, len(row_cells))
-        rows.append(row_cells)
-    if max_cols == 0:
+def paragraph_has_page_break(paragraph):
+    return bool(paragraph._element.xpath(".//w:br[@w:type='page']"))
+
+
+def convert_paragraph(paragraph, image_dir, image_counter):
+    if paragraph.style and paragraph.style.name == "Header and Footer":
         return []
-    col_spec = "|" + "|".join(["l"] * max_cols) + "|"
-    lines = ["\\begin{table}[H]", "\\centering", f"\\begin{{tabular}}{{{col_spec}}}", "\\hline"]
-    for row in rows:
-        padded = row + [""] * (max_cols - len(row))
-        escaped = [escape_latex(cell) for cell in padded]
-        lines.append(" & ".join(escaped) + r" \\"
-        )
-        lines.append("\\hline")
-    lines.append("\\end{tabular}")
-    lines.append("\\end{table}")
+
+    parts = []
+    for run in paragraph.runs:
+        parts.extend(extract_run_images(run, paragraph, image_dir, image_counter))
+        for piece in re.split(r"(\n|\t)", run.text or ""):
+            if piece == "\n":
+                parts.append(r"\\")
+            elif piece == "\t":
+                parts.append(r"\hspace*{2em}")
+            elif piece:
+                parts.append(wrap_run_format(run, escape_latex(piece)))
+
+    lines = []
+    if paragraph_has_page_break(paragraph):
+        lines.append(r"\newpage")
+    content = "".join(parts).strip()
+    if not content:
+        lines.append(r"\vspace{\baselineskip}")
+        return lines
+    lines.append(paragraph_env_start(paragraph))
+    lines.append(content + r"\par")
+    lines.append(r"\endgroup")
     return lines
 
 
-def find_chapter_titles(doc):
-    titles = {}
-    for p in doc.paragraphs:
-        text = normalize_text(p.text)
-        match = re.match(r"^(\d+)\.\s*Chapter\s+\d+\s+(.+)$", text, re.IGNORECASE)
-        if match:
-            num = int(match.group(1))
-            title = re.sub(r"\.{2,}.*$", "", match.group(2)).strip()
-            if title:
-                titles[num] = title
-    return titles
+def cell_widths_pt(table):
+    grid = table._tbl.tblGrid
+    if grid is None:
+        return []
+    widths = []
+    for col in grid.gridCol_lst:
+        widths.append(attr_int(col, "w:w") / 20)
+    return widths
 
 
-def is_toc_or_list_line(text):
-    if not text:
-        return False
-    if text.lower() in {"table of contents", "list of figures", "list of tables"}:
-        return True
-    if re.match(r"^\d+\.\s*Chapter\s+\d+\b", text, re.IGNORECASE):
-        return True
-    if "...." in text:
-        return True
-    return False
+def convert_cell(cell):
+    paras = []
+    for para in cell.paragraphs:
+        text = ""
+        for run in para.runs:
+            if run.text:
+                text += wrap_run_format(run, escape_latex(run.text))
+        if text.strip():
+            paras.append(text.strip())
+    return r"\par ".join(paras)
 
 
-def heading_from_number(number_str, title):
-    level = number_str.count(".")
-    title = escape_latex(title)
-    if level == 1:
-        return f"\\section{{{title}}}"
-    if level == 2:
-        return f"\\subsection{{{title}}}"
-    if level == 3:
-        return f"\\subsubsection{{{title}}}"
-    return f"\\paragraph{{{title}}}"
+def convert_table(table):
+    widths = cell_widths_pt(table)
+    col_count = len(table.columns)
+    if not widths or len(widths) != col_count:
+        widths = [420 / max(col_count, 1)] * col_count
+    spec = "|".join(rf"p{{{width:.2f}pt}}" for width in widths)
+    lines = [
+        r"\begingroup",
+        r"\small",
+        r"\setlength{\tabcolsep}{3pt}",
+        r"\renewcommand{\arraystretch}{1.15}",
+        rf"\begin{{longtable}}{{|{spec}|}}",
+        r"\hline",
+    ]
+    for row in table.rows:
+        cells = [convert_cell(cell) for cell in row.cells[:col_count]]
+        lines.append(" & ".join(cells) + r" \\ \hline")
+    lines.extend([r"\end{longtable}", r"\endgroup"])
+    return lines
+
+
+def section_geometry(section):
+    return {
+        "paperwidth": section.page_width.pt,
+        "paperheight": section.page_height.pt,
+        "left": section.left_margin.pt,
+        "right": section.right_margin.pt,
+        "top": section.top_margin.pt,
+        "bottom": section.bottom_margin.pt,
+    }
+
+
+def convert_docx(input_path, output_tex, image_dir):
+    doc = Document(input_path)
+    image_dir.mkdir(parents=True, exist_ok=True)
+    image_counter = [0]
+    geometry = section_geometry(doc.sections[0])
+
+    body = []
+    for block in iter_block_items(doc):
+        if isinstance(block, Paragraph):
+            body.extend(convert_paragraph(block, image_dir, image_counter))
+        elif isinstance(block, Table):
+            body.extend(convert_table(block))
+        body.append("")
+
+    lines = [
+        "% !TEX program = xelatex",
+        r"\documentclass[12pt]{article}",
+        r"\usepackage{fontspec}",
+        r"\usepackage{polyglossia}",
+        r"\usepackage{geometry}",
+        r"\usepackage{graphicx}",
+        r"\usepackage[table]{xcolor}",
+        r"\usepackage{array}",
+        r"\usepackage{longtable}",
+        r"\usepackage{ragged2e}",
+        r"\usepackage{ulem}",
+        r"\usepackage[hidelinks]{hyperref}",
+        r"\setmainlanguage{english}",
+        r"\setotherlanguage{arabic}",
+        r"\setmainfont{Times New Roman}",
+        r"\newfontfamily\arabicfont[Script=Arabic]{Times New Roman}",
+        rf"\geometry{{paperwidth={geometry['paperwidth']:.2f}pt,paperheight={geometry['paperheight']:.2f}pt,left={geometry['left']:.2f}pt,right={geometry['right']:.2f}pt,top={geometry['top']:.2f}pt,bottom={geometry['bottom']:.2f}pt}}",
+        r"\setlength{\parindent}{0pt}",
+        r"\setlength{\parskip}{0pt}",
+        r"\pagestyle{plain}",
+        r"\begin{document}",
+        "",
+        *body,
+        r"\end{document}",
+        "",
+    ]
+    output_tex.write_text("\n".join(lines), encoding="utf-8")
+    return image_counter[0]
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default="Graduation Project.docx")
-    parser.add_argument("--out", default=".")
+    parser.add_argument("--output", default="main.tex")
+    parser.add_argument("--image-dir", default="images")
     args = parser.parse_args()
 
-    doc = Document(args.input)
-    out_dir = Path(args.out)
-    chapters_dir = out_dir / "chapters"
-    images_dir = out_dir / "images"
-    chapters_dir.mkdir(parents=True, exist_ok=True)
-    images_dir.mkdir(parents=True, exist_ok=True)
-
-    chapter_titles = find_chapter_titles(doc)
-
-    frontmatter_lines = []
-    chapter_lines = {}
-    current_chapter = None
-    in_list = False
-    image_counter = [0]
-    skip_mode = None
-    frontmatter_headings = {"declaration", "acknowledgements", "abstract"}
-
-    section_re = re.compile(r"^(\d+(?:\.\d+)+)\s+(.+)$")
-
-    def ensure_chapter(chapter_num):
-        nonlocal current_chapter
-        if current_chapter != chapter_num:
-            current_chapter = chapter_num
-            if chapter_num not in chapter_lines:
-                title = chapter_titles.get(chapter_num, f"Chapter {chapter_num}")
-                chapter_lines[chapter_num] = [f"\\chapter{{{escape_latex(title)}}}", ""]
-
-    def append_lines(lines):
-        target = frontmatter_lines if current_chapter is None else chapter_lines[current_chapter]
-        target.extend(lines)
-
-    for block in iter_block_items(doc):
-        if isinstance(block, Paragraph):
-            if block.style and block.style.name == "Header and Footer":
-                continue
-            text = normalize_text(block.text)
-            images = extract_images(block, images_dir, image_counter)
-
-            if text:
-                lowered = text.lower()
-                if lowered == "table of contents":
-                    skip_mode = "toc"
-                    continue
-                if lowered in {"list of figures", "list of tables"}:
-                    skip_mode = "list"
-                    continue
-
-            if skip_mode:
-                if text.upper() == "ABSTRACT":
-                    skip_mode = None
-                else:
-                    section_match = section_re.match(text)
-                    if section_match and not is_toc_or_list_line(text):
-                        skip_mode = None
-                    else:
-                        continue
-
-            if text and is_toc_or_list_line(text):
-                continue
-
-            section_match = section_re.match(text)
-            if section_match:
-                if in_list:
-                    append_lines(["\\end{itemize}", ""])
-                    in_list = False
-                number_str = section_match.group(1)
-                title = section_match.group(2)
-                chapter_num = int(number_str.split(".")[0])
-                ensure_chapter(chapter_num)
-                append_lines([heading_from_number(number_str, title), ""])
-                continue
-
-            if text and text.lower() in frontmatter_headings and current_chapter is None:
-                if in_list:
-                    append_lines(["\\end{itemize}", ""])
-                    in_list = False
-                append_lines([f"\\chapter*{{{escape_latex(text.title())}}}", ""])
-                continue
-
-            paragraph_text = convert_runs(block)
-
-            if block.style and block.style.name == "List Paragraph" and paragraph_text:
-                if not in_list:
-                    append_lines(["\\begin{itemize}"])
-                    in_list = True
-                append_lines([f"\\item {paragraph_text}"])
-            else:
-                if in_list:
-                    append_lines(["\\end{itemize}", ""])
-                    in_list = False
-                if paragraph_text:
-                    append_lines([paragraph_text, ""])
-
-            if images:
-                if in_list:
-                    append_lines(["\\end{itemize}", ""])
-                    in_list = False
-                for path in images:
-                    rel_path = path.relative_to(out_dir).as_posix()
-                    append_lines([
-                        "\\begin{figure}[H]",
-                        "\\centering",
-                        f"\\includegraphics[width=0.95\\linewidth]{{{rel_path}}}",
-                        "\\end{figure}",
-                        "",
-                    ])
-        else:
-            if in_list:
-                append_lines(["\\end{itemize}", ""])
-                in_list = False
-            table_lines = convert_table(block)
-            if table_lines:
-                append_lines(table_lines + [""])
-
-    if in_list:
-        append_lines(["\\end{itemize}", ""])
-
-    for chapter_num, lines in chapter_lines.items():
-        chapter_path = chapters_dir / f"chapter{chapter_num:02d}.tex"
-        chapter_path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
-
-    frontmatter_path = out_dir / "frontmatter.tex"
-    if frontmatter_lines:
-        frontmatter_path.write_text("\n".join(frontmatter_lines).strip() + "\n", encoding="utf-8")
-
-    main_lines = [
-        "\\documentclass[12pt]{report}",
-        "\\usepackage[a4paper,margin=1in]{geometry}",
-        "\\usepackage{graphicx}",
-        "\\usepackage{longtable}",
-        "\\usepackage{array}",
-        "\\usepackage{hyperref}",
-        "\\usepackage{float}",
-        "",
-        "\\begin{document}",
-    ]
-
-    if frontmatter_lines:
-        main_lines.append("\\include{frontmatter}")
-
-    for chapter_num in sorted(chapter_lines.keys()):
-        main_lines.append(f"\\include{{chapters/chapter{chapter_num:02d}}}")
-
-    main_lines.extend(["", "\\end{document}"])
-    (out_dir / "main.tex").write_text("\n".join(main_lines) + "\n", encoding="utf-8")
+    count = convert_docx(Path(args.input), Path(args.output), Path(args.image_dir))
+    print(f"Wrote {args.output} and extracted {count} images to {args.image_dir}")
 
 
 if __name__ == "__main__":

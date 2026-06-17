@@ -1,4 +1,9 @@
 % !TEX program = xelatex
+% =========================================================
+%  VisionSafe 360 - Graduation Project Report
+%  Egyptian Russian University | Faculty of Artificial Intelligence
+%  Built to the Faculty Graduation Project Report Template
+% =========================================================
 \documentclass[12pt, a4paper]{report}
 
 % --- Packages ---
@@ -9,6 +14,7 @@
 \usepackage{xcolor}
 \usepackage{setspace}
 \usepackage{titlesec}
+\usepackage{fancyhdr}
 \usepackage[hidelinks]{hyperref}
 \usepackage{cite}
 \usepackage{enumitem}
@@ -17,6 +23,8 @@
 \usepackage{float}
 \usepackage{array}
 \usepackage{longtable}
+\usepackage{ragged2e}
+\usepackage{chngcntr}
 
 % Path to images
 \graphicspath{{images/}{UIUX/}}
@@ -28,37 +36,75 @@
 \setmainfont{Times New Roman}
 \newfontfamily\arabicfont[Script=Arabic]{Times New Roman}
 
-% --- Formatting Settings ---
-\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
-\onehalfspacing
+% --- Template Accent Colour (faculty heading blue) ---
+\definecolor{ERUblue}{RGB}{46,116,181}
 
-% --- Font Size Rules (Strict Implementation) ---
+% --- Page Layout (A4, template margins, justified, 1.5 spacing) ---
+\geometry{left=2.5cm, right=2cm, top=2.7cm, bottom=2.2cm, headsep=12pt}
+\onehalfspacing
+\justifying
+
+% --- Running Header and "Page N" Footer (template style) ---
+\setlength{\headheight}{15pt}
+\newcommand{\erurunninghead}{%
+  \itshape\footnotesize Egyptian Russian University \textbar{} Faculty of Artificial Intelligence \textbar{} VisionSafe 360}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\erurunninghead}
+\fancyfoot[C]{\normalfont \thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Chapter opening pages use the "plain" style: keep footer, drop header rule
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\normalfont \thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% --- List / section naming to match the template ---
+\renewcommand{\contentsname}{List of Contents}
+\renewcommand{\listfigurename}{List of Figures}
+\renewcommand{\listtablename}{List of Tables}
+
+% --- Font Size + Colour Rules (Strict template implementation) ---
+% Chapter titles: 16 pt, bold, blue
 \titleformat{\chapter}[display]
-	{\normalfont\bfseries\fontsize{16}{19}\selectfont}
+	{\normalfont\bfseries\color{ERUblue}\fontsize{16}{19}\selectfont}
 	{\chaptertitlename\ \thechapter}
 	{1em}
 	{}
 \titleformat{name=\chapter,numberless}[display]
-	{\normalfont\bfseries\fontsize{16}{19}\selectfont}
+	{\normalfont\bfseries\color{ERUblue}\fontsize{16}{19}\selectfont}
 	{}
 	{0pt}
 	{}
 \titlespacing*{\chapter}{0pt}{20pt}{20pt}
 
+% Section titles: 14 pt, bold, blue
 \titleformat{\section}
-	{\normalfont\bfseries\fontsize{14}{17}\selectfont}
+	{\normalfont\bfseries\color{ERUblue}\fontsize{14}{17}\selectfont}
 	{\thesection}
 	{1em}
 	{}
 \titlespacing*{\section}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
 
+% Subsection titles: 13 pt, bold, blue
 \titleformat{\subsection}
-	{\normalfont\bfseries\fontsize{13}{16}\selectfont}
+	{\normalfont\bfseries\color{ERUblue}\fontsize{13}{16}\selectfont}
 	{\thesubsection}
 	{1em}
 	{}
 \titlespacing*{\subsection}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
+% Caption styling: bold label, centered, captions sit below floats
+\counterwithout{figure}{chapter}
+\captionsetup{labelfont=bf,font=small,justification=centering,singlelinecheck=true}
+\captionsetup[table]{position=bottom}
+
+% --- Robust image include (placeholder box if a file is missing) ---
 \newcommand{\safeincludegraphics}[2][]{%
 	\IfFileExists{#2}{%
 		\includegraphics[#1]{#2}%
@@ -71,32 +117,31 @@
 	}%
 }
 
-% --- START DOCUMENT ---
+% =========================================================
+% START DOCUMENT
+% =========================================================
 \begin{document}
 
-% =========================================================
-% FRONT MATTER
-% =========================================================
+% ---------------------------------------------------------
+% FRONT MATTER (title page, contents, declaration, approval,
+% acknowledgements, abstract, abbreviations, lists)
+% ---------------------------------------------------------
 \include{frontmatter}
 
-% =========================================================
-% LISTS
-% =========================================================
-\tableofcontents
-\listoffigures
-\listoftables
-
-% =========================================================
+% ---------------------------------------------------------
 % MAIN CHAPTERS
-% =========================================================
+% ---------------------------------------------------------
 \include{chapters/chapter01}
 \include{chapters/chapter02}
 \include{chapters/chapter03}
 \include{chapters/chapter04}
+\include{chapters/chapter05}
+\include{chapters/chapter06}
+\include{chapters/chapter07}
 
-% =========================================================
-% BIBLIOGRAPHY
-% =========================================================
+% ---------------------------------------------------------
+% BIBLIOGRAPHY (optional - included only if references.bib exists)
+% ---------------------------------------------------------
 \IfFileExists{references.bib}{%
 	\bibliographystyle{ieeetr}
 	\bibliography{references}
