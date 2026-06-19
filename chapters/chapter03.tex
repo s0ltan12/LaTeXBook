@@ -42,7 +42,7 @@ In addition to acute incidents such as falls or collisions, workers are also exp
 
 \textbf{A. Technical Feasibility}
 
-The system is built upon a proven open-source stack: \textbf{Python}, \textbf{OpenCV} (video ingestion), \textbf{Ultralytics YOLOv8} (object detection), and \textbf{FastAPI} (backend services). The architecture utilizes \textbf{Edge Computing} for critical inference, ensuring feasibility even in bandwidth-constrained environments.
+The system is built upon a proven open-source stack: \textbf{Python}, \textbf{OpenCV} (video ingestion) \cite{bradski2000opencv}, \textbf{Ultralytics YOLOv8} (object detection) \cite{ultralytics_yolov8}, and \textbf{FastAPI} (backend services) \cite{fastapi_docs}. The architecture utilizes \textbf{Edge Computing} for critical inference, ensuring feasibility even in bandwidth-constrained environments.
 
 In addition to PPE, fall, and proximity detection, the Edge AI stack is extended with a \textbf{Posture \& Ergonomic Analysis sub-module}. This module relies on skeletal keypoint extraction (e.g., from a lightweight pose estimation network) and rule-based ergonomic evaluation to approximate posture-related risk levels in real-time.
 
@@ -108,7 +108,7 @@ Autonomous execution of unified hazard inference pipelines for PPE detection, fa
 
 \textbf{Real-Time Alerting:}
 
-\textbf{Local (Emergency Incidents):} Immediate activation of on-site sirens/lights (latency <1s) \textbf{only} for acute, high-severity safety hazards, namely:
+\textbf{Dashboard Alerts (Emergency Incidents):} Immediate creation and display of high-priority dashboard alerts for acute, high-severity safety hazards, namely:
 
 Confirmed fall events.
 
@@ -116,9 +116,9 @@ PPE violations (e.g., missing helmet or vest) above configured thresholds.
 
 Unsafe proximity between workers and hazardous zones or moving equipment.
 
-\textbf{Remote (Emergency Incidents):} Push notifications (FCM) to Supervisors and WebSocket updates to the HQ Dashboard are generated for the same set of acute, high-severity hazard types (falls, PPE violations, unsafe proximity).
+\textbf{Remote Dashboard Updates (Emergency Incidents):} WebSocket updates to the HQ Dashboard are generated for the same set of acute, high-severity hazard types (falls, PPE violations, unsafe proximity).
 
-\textbf{Non-Emergency Ergonomic Alerts:} Posture-related ergonomic hazards, typically classified as low or medium severity, are logged as \textbf{low-severity ergonomic events} and surfaced in dashboards and reports. They \textbf{do not} trigger sirens or high-priority mobile alerts, thereby avoiding alert fatigue while still providing actionable insights for preventive ergonomics.
+\textbf{Non-Emergency Ergonomic Alerts:} Posture-related ergonomic hazards, typically classified as low or medium severity, are logged as \textbf{low-severity ergonomic events} and surfaced in dashboards and reports. They are handled as analytic records rather than emergency incidents, thereby avoiding alert fatigue while still providing actionable insights for preventive ergonomics.
 
 \textbf{Event Management \& Lifecycle:}
 
@@ -142,9 +142,9 @@ Configurable retention periods for snapshots and metadata, including both incide
 
 The system shall continuously estimate worker body posture using skeletal keypoints extracted from video frames (e.g., shoulders, hips, knees, trunk orientation).
 
-An internal ergonomic scoring mechanism (inspired by standard frameworks such as \textbf{RULA/REBA}) shall classify posture snapshots into low, medium, or high musculoskeletal risk levels.
+An internal ergonomic scoring mechanism, inspired by \textbf{RULA} and \textbf{REBA} \cite{mcatamney1993rula,hignett2000reba}, shall classify posture snapshots into low, medium, or high musculoskeletal risk levels.
 
-Non-emergency \textbf{ergonomic alerts} shall be generated for prolonged high-risk postures (e.g., sustained trunk flexion beyond a configurable duration). These are logged as \textbf{low-severity events} and do not activate emergency sirens or high-priority mobile alerts.
+Non-emergency \textbf{ergonomic alerts} shall be generated for prolonged high-risk postures (e.g., sustained trunk flexion beyond a configurable duration). These are logged as \textbf{low-severity events} and do not enter the emergency incident workflow.
 
 Aggregated posture risk data (per worker zone or per camera) shall be stored as \textbf{ergonomic records} and made available to HSE Engineers for trend analysis and preventive intervention planning, helping identify high-risk tasks and areas over time without causing alert fatigue.
 
@@ -182,7 +182,7 @@ System Administrator & System config, user management, camera setup, health moni
 \hline
 HSE Engineer & Dashboard monitoring, incident investigation, compliance auditing, ergonomic trend analysis. \\
 \hline
-Site Supervisor & Receives mobile alerts, performs on-site intervention, logs corrective actions. \\
+Site Supervisor & Receives dashboard alerts, performs on-site intervention, logs corrective actions. \\
 \hline
 Data Analyst & Reviews long-term trends, generates safety KPIs and reports. \\
 \hline
@@ -206,7 +206,7 @@ While the \textbf{AI Engine} executes hazard detection and posture analysis in a
 \caption{Key Use Case Scenarios}
 \end{figure}
 
-\textbf{Hazard Detection:} The Edge AI detects a "Fall". The system validates confidence, classifies severity, checks the cooldown timer, triggers the local siren, blurs faces in the frame, and uploads the event to the Backend as an emergency incident.
+\textbf{Hazard Detection:} The Edge AI detects a "Fall". The system validates confidence, classifies severity, checks the cooldown timer, blurs faces in the frame, and uploads the event to the Backend as an emergency incident.
 
 \textbf{Incident Resolution:} A Supervisor receives a notification, opens the app to view the snapshot, attends to the worker, and marks the incident as "Resolved" with notes.
 
@@ -218,7 +218,7 @@ While the \textbf{AI Engine} executes hazard detection and posture analysis in a
 
 This diagram details the sequential logic flow of the core detection loop, specifically focusing on how the system handles continuous video frames. It illustrates the critical decision-making process: acquiring a frame, running unified hazard inference (PPE, falls, proximity, posture), validating the detections against confidence thresholds, and then classifying the \textbf{severity} of each hazard. This mechanism is vital to prevent "alert fatigue" by ensuring that only genuinely high-severity, acute hazards (e.g., a confirmed fall with high confidence) can trigger immediate emergency alerts.
 
-In parallel, or rather as part of the unified hazard analysis, posture-related ergonomic hazards are evaluated and assigned typically low or medium severity levels. These posture hazards generate \textbf{non-emergency, low-severity posture records} for long-term musculoskeletal risk assessment. These posture-related records do not trigger real-time sirens or high-priority alerts but instead feed ergonomic dashboards and reports for HSE teams.
+In parallel, or rather as part of the unified hazard analysis, posture-related ergonomic hazards are evaluated and assigned typically low or medium severity levels. These posture hazards generate \textbf{non-emergency, low-severity posture records} for long-term musculoskeletal risk assessment. These posture-related records are not treated as emergency incidents but instead feed ergonomic dashboards and reports for HSE teams.
 
 \begin{figure}[H]
 \centering
@@ -280,7 +280,7 @@ The ERD visualizes the database schema designed to support the system's data per
 
 \textbf{Key Entities:}
 
-\textbf{Users:} Stores authentication credentials, roles, and FCM tokens for mobile pushes.
+\textbf{Users:} Stores authentication credentials, roles, and dashboard access information.
 
 \textbf{Cameras:} Contains configuration data including RTSP URLs and JSON-defined Region of Interest (ROI) polygons.
 
@@ -302,11 +302,11 @@ The Class Diagram represents the static structure of the software implementation
 
 \textbf{Alerting/Notification Logic (e.g., AlertManager + NotificationService):} Applies an alert routing policy based on hazard severity and type:
 
-High/Critical severity for acute hazards (falls, PPE, proximity) → emergency sirens and incident creation.
+High/Critical severity for acute hazards (falls, PPE, proximity) → emergency incident creation.
 
-Low/Medium severity, especially posture-related ergonomic hazards → ergonomic records and analytic logging only (no sirens).
+Low/Medium severity, especially posture-related ergonomic hazards → ergonomic records and analytic logging only.
 
-\textbf{NotificationService:} An interface for triggering external actions (Sirens, API calls) without coupling the core logic to specific output hardware.
+\textbf{NotificationService:} An interface for routing alert actions and API calls without coupling the core logic to a specific output channel.
 
 The PostureAnalyzer and HazardAnalyzer jointly implement a unified hazard detection pipeline, while the alerting logic enforces different behaviors for emergency incidents versus low-severity ergonomic records.
 
@@ -320,7 +320,7 @@ The PostureAnalyzer and HazardAnalyzer jointly implement a unified hazard detect
 
 The Sequence Diagram provides a dynamic view of the system, capturing the chronological order of interactions during a "Hazard Detection" scenario. It traces the lifecycle of a single video frame: from capture by the \textbf{StreamHandler}, through unified hazard analysis by the \textbf{InferenceEngine}, \textbf{PostureAnalyzer}, and \textbf{HazardAnalyzer}, to the final alerts triggered (or not triggered) by the alerting logic and received by the \textbf{Mobile Client}.
 
-In this workflow, a unified hazard event is created, containing both the hazard type (PPE, fall, proximity, posture) and its severity (e.g., high/medium/low). The alerting logic then decides whether this event becomes an emergency incident (with sirens and mobile alerts) or a low-severity ergonomic record suitable for trend analysis. This diagram is critical for understanding the latency and dependencies between the Edge and Backend components, as well as the separation between emergency incident handling (high-severity PPE/fall/proximity) and continuous, preventive ergonomic analysis (typically low-severity posture hazards) that avoids contributing to alert fatigue.
+In this workflow, a unified hazard event is created, containing both the hazard type (PPE, fall, proximity, posture) and its severity (e.g., high/medium/low). The alerting logic then decides whether this event becomes an emergency incident or a low-severity ergonomic record suitable for trend analysis. This diagram is critical for understanding the latency and dependencies between the Edge and Backend components, as well as the separation between emergency incident handling (high-severity PPE/fall/proximity) and continuous, preventive ergonomic analysis (typically low-severity posture hazards) that avoids contributing to alert fatigue.
 
 \begin{figure}[H]
 \centering
@@ -340,9 +340,9 @@ In this workflow, a unified hazard event is created, containing both the hazard 
 
 The alerting logic (e.g., AlertManager + NotificationService) inspects each hazard event:
 
-For high-severity acute hazards (e.g., falls, PPE, proximity), it triggers local hardware (sirens/lights) and posts an incident to the \textbf{Backend API}.
+For high-severity acute hazards (e.g., falls, PPE, proximity), it posts an incident to the \textbf{Backend API}.
 
-For low-severity posture-related ergonomic hazards, it bypasses sirens and posts an ergonomic record to the \textbf{Backend API} asynchronously.
+For low-severity posture-related ergonomic hazards, it posts an ergonomic record to the \textbf{Backend API} asynchronously.
 
 \textbf{Backend} persists both emergency incidents and ergonomic records and pushes a real-time update to the \textbf{Mobile Client} (for incidents) and posture dashboards (for HSE Engineers).
 
@@ -372,9 +372,9 @@ The Incident lifecycle focuses on acute, high-severity, safety-critical events (
 
 The Component Diagram illustrates the high-level modular decomposition of VisionSafe 360 and clarifies the responsibilities and interfaces between subsystems across the Edge and Backend environments. It emphasizes the system’s design principle of keeping safety-critical inference and privacy enforcement on-premise (Edge), while delegating persistence, analytics, and multi-client distribution to the Backend.
 
-At the Edge Node, the Stream Handler ingests RTSP camera streams and provides frames to the AI Engine for unified hazard inference. The Posture Analyzer operates alongside the core inference pipeline to estimate skeletal keypoints and compute ergonomic risk indicators, which are then consolidated within the hazard evaluation flow. Prior to any persistence or transmission, the Face Blurring component enforces privacy by anonymizing detected persons. An Alert Controller orchestrates event routing, ensuring that high-severity acute hazards trigger local alarms (via GPIO) while posture-related ergonomic risks are typically logged as low-severity records for trend analysis.
+At the Edge Node, the Stream Handler ingests RTSP camera streams and provides frames to the AI Engine for unified hazard inference. The Posture Analyzer operates alongside the core inference pipeline to estimate skeletal keypoints and compute ergonomic risk indicators, which are then consolidated within the hazard evaluation flow. Prior to any persistence or transmission, the Face Blurring component enforces privacy by anonymizing detected persons. An Alert Controller orchestrates event routing, ensuring that high-severity acute hazards are recorded as emergency incidents while posture-related ergonomic risks are typically logged as low-severity records for trend analysis.
 
-On the Backend Server, an API Gateway exposes secured endpoints and routes requests to specialized services, including Authentication, Incident Management, Ergonomic Records, and Analytics. Data persistence is handled through a dedicated Data Layer, where structured records are stored in PostgreSQL, frequently accessed data is optimized using Redis cache, and encrypted snapshots are stored in file storage. External services such as Firebase FCM are integrated to deliver push notifications to client applications, including the Mobile App and Web Dashboard.
+On the Backend Server, an API Gateway exposes secured endpoints and routes requests to specialized services, including Authentication, Incident Management, Ergonomic Records, and Analytics. Data persistence is handled through a dedicated Data Layer, where structured records are stored in PostgreSQL \cite{postgres_docs}, frequently accessed data is optimized using Redis cache \cite{redis_docs}, and encrypted snapshots are stored in file storage. Real-time dashboard updates are delivered through backend event and WebSocket mechanisms.
 
 \begin{figure}[H]
 \centering
@@ -386,9 +386,9 @@ On the Backend Server, an API Gateway exposes secured endpoints and routes reque
 
 The Deployment Diagram presents the physical runtime topology of VisionSafe 360 across an industrial site and cloud infrastructure. It highlights how the system integrates with existing CCTV installations while ensuring low latency for emergency response and preserving privacy by keeping raw video on-site.
 
-Within the Industrial Site, multiple IP cameras stream video over RTSP to the Edge Server (e.g., NVIDIA Jetson). The Edge node hosts the core runtime modules—stream handling, inference execution, and alert management—along with the primary AI models (YOLOv8 for detection and a lightweight pose model for posture estimation). For immediate on-site response, the Edge Server interfaces with the Alarm System (e.g., siren and strobe light) through GPIO, enabling sub-second activation for confirmed high-severity hazards.
+Within the Industrial Site, multiple IP cameras stream video over RTSP to the Edge Server (e.g., NVIDIA Jetson). The Edge node hosts the core runtime modules—stream handling, inference execution, and alert management—along with the primary AI models (YOLOv8 for detection and a lightweight pose model for posture estimation). Confirmed high-severity hazards are sent to the backend as emergency incidents for dashboard review and response.
 
-The Cloud Infrastructure hosts the application layer responsible for orchestration and user-facing services, including the FastAPI Backend and a WebSocket server for real-time dashboard updates. Persistent storage is provided through PostgreSQL for structured incident/ergonomic records, Redis for caching and performance optimization, and dedicated file storage for encrypted snapshots. Firebase FCM is used as an external notification layer for mobile push delivery. Client devices (desktop web browser and iOS/Android mobile app) communicate with the backend using secure channels (HTTPS/WSS), receiving emergency incident notifications and accessing analytics views, including aggregated ergonomic posture risk trends.
+The Cloud Infrastructure hosts the application layer responsible for orchestration and user-facing services, including the FastAPI Backend and a WebSocket server for real-time dashboard updates. Persistent storage is provided through PostgreSQL for structured incident/ergonomic records, Redis for caching and performance optimization, and dedicated file storage for encrypted snapshots. Client devices communicate with the backend using secure channels (HTTPS/WSS), receiving dashboard incident updates and accessing analytics views, including aggregated ergonomic posture risk trends.
 
 This deployment layout supports scalability (by adding Edge nodes per site/camera cluster), ensures operational resilience under limited connectivity, and enforces privacy compliance by restricting raw video processing and anonymization to the on-premise Edge environment.
 

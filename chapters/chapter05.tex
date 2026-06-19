@@ -1,122 +1,101 @@
 \chapter{Implementation}
 
-\newcommand{\chapterplaceholderfigure}[1]{%
-  \fbox{%
-    \parbox[c][0.22\textheight][c]{0.9\linewidth}{%
-      \centering #1%
-    }%
-  }%
-}
-
-\section{Introduction}
-
-This chapter explains how \textbf{VisionSafe360} was implemented as a complete AI-based workplace safety monitoring system. The goal of the implementation was to build a practical solution capable of detecting safety hazards in real time using computer vision and machine learning.
-
-VisionSafe360 was designed to monitor industrial environments through live video streams and automatically detect dangerous situations such as missing personal protective equipment (PPE), worker falls, unsafe proximity between workers and vehicles, and harmful ergonomic posture. The system combines AI models, edge processing, backend services, and a web dashboard to provide a complete safety monitoring platform.
-
-This chapter covers the implementation phases, technologies used, system architecture, module development, and challenges faced during development.
-
 \section{Implementation Overview}
 
-The implementation of VisionSafe360 was completed in several phases. The first phase focused on identifying the main workplace hazards that the system should detect. After studying industrial safety requirements, four major hazards were selected: PPE violations, worker falls, unsafe forklift proximity, and poor ergonomic posture.
+This chapter explains how \textbf{VisionSafe360} was implemented as a complete AI-based workplace safety monitoring system. Unlike the design chapters, this chapter focuses on the practical implementation: the models that were loaded, the rules used to convert detections into hazards, the backend endpoints that receive incidents, and the dashboard mechanisms used to display live safety information.
 
-The second phase involved collecting and preparing datasets for model training. Different datasets were used for PPE detection, forklift detection, and human posture analysis. Data preprocessing and annotation were performed to improve model quality and detection accuracy.
-
-The third phase focused on AI model development. Multiple computer vision models were trained and tested for object detection, tracking, and pose estimation. These models formed the core of the hazard detection engine.
-
-In the fourth phase, backend services were developed to manage alerts, incidents, analytics, and communication between system components. A dashboard was then built to visualize live monitoring and safety reports.
-
-Finally, all modules were integrated to produce the final prototype of VisionSafe360. The final deliverable is a complete AI-powered industrial safety system capable of monitoring live video streams and generating real-time alerts.
+The implemented system monitors video streams and detects four main hazard categories: missing personal protective equipment (PPE), unsafe worker--forklift proximity, worker falls, and harmful ergonomic posture. These modules run in an edge AI pipeline and send structured events to a FastAPI backend. The backend stores incidents, publishes real-time updates through WebSockets, and exposes data to the React dashboard.
 
 \section{Development Milestones}
 
-The development process followed a structured sequence of milestones to ensure smooth progress.
+The implementation was completed in five main milestones. The first milestone defined the hazard categories and translated them into measurable computer vision tasks. PPE violations were represented as missing-equipment detections, forklift risk was represented as worker--vehicle distance, falls were represented as temporal posture transitions, and ergonomics were represented as RULA/REBA scores.
 
-The first milestone involved defining project requirements and system architecture. During this stage, the overall pipeline was designed, including AI processing, backend communication, and dashboard visualization.
+The second milestone focused on dataset preparation and model selection. YOLO-based models were selected for object detection and pose estimation because they provide real-time inference and integrated tracking support through the Ultralytics framework \cite{ultralytics_yolov8}.
 
-The second milestone focused on dataset preparation and model selection. Different AI models were evaluated based on speed and accuracy to ensure suitability for real-time deployment.
+The third milestone implemented the edge AI modules. Each hazard module was developed as a separate analyzer so that the pipeline could enable or disable PPE, proximity, fall, and posture logic independently.
 
-The third milestone involved implementing hazard detection modules. Each safety feature was developed as a separate module to maintain modularity and scalability.
+The fourth milestone implemented the backend and dashboard. FastAPI was used for authenticated API endpoints, PostgreSQL was used for persistent records, Redis supported real-time event delivery and worker orchestration, and React/TypeScript was used for the dashboard interface.
 
-The fourth milestone focused on backend and frontend development. APIs were created to manage system communication, while the dashboard provided an interface for monitoring and analytics.
-
-The final milestone involved system integration and prototype completion.
+The final milestone integrated the system using REST, WebSocket streams, and Docker Compose so that the prototype could run as a connected multi-service application.
 
 \section{System Architecture Implementation}
 
-VisionSafe360 was implemented using a layered architecture to ensure scalability and maintainability. The system consists of four main layers: video input, edge AI processing, backend services, and dashboard visualization.
+VisionSafe360 was implemented as a layered architecture consisting of video input, edge AI processing, backend services, and dashboard visualization.
 
-The \textbf{video input layer} receives data from CCTV cameras, webcams, IP cameras, or uploaded video files. These video streams act as the primary input source for hazard detection.
+The \textbf{video input layer} receives frames from CCTV cameras, webcams, IP cameras, RTSP streams, or uploaded video files. The stream handler keeps only the latest frame when necessary so that processing remains close to real time instead of building a large queue of old frames.
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert screenshot or diagram showing camera/video input sources here}
+\safeincludegraphics[width=0.95\linewidth,height=0.55\textheight,keepaspectratio]{images/video_input_pipeline.png}
 \caption{Video input pipeline}
 \end{figure}
 
-The \textbf{edge AI processing layer} performs real-time inference on incoming frames. This layer runs AI models for object detection, pose estimation, object tracking, and hazard analysis. Running inference on the edge reduces latency and allows faster response.
+The \textbf{edge AI processing layer} owns the GPU inference loop. It loads the pose, PPE, and proximity models, performs YOLO inference, applies ByteTrack tracking where needed, and passes detections to the hazard analyzers.
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert AI pipeline architecture screenshot here}
+\safeincludegraphics[width=0.95\linewidth,height=0.55\textheight,keepaspectratio]{images/edge_ai_pipeline.png}
 \caption{Edge AI processing pipeline}
 \end{figure}
 
-The \textbf{backend layer} handles event logging, alert management, API communication, and analytics processing. It acts as the bridge between AI inference and dashboard visualization.
+The \textbf{backend layer} receives incidents from edge workers, validates requests, stores records, applies rate limits, and broadcasts incident updates to connected dashboard clients.
 
-The \textbf{dashboard layer} provides the user interface for live monitoring, incident tracking, safety analytics, and system configuration.
+The \textbf{dashboard layer} provides live monitoring, incident management, alerts, reports, camera management, ergonomics analytics, and system configuration.
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert complete architecture diagram here}
+\safeincludegraphics[width=0.95\linewidth,height=0.60\textheight,keepaspectratio]{images/fig_5_3_complete_architecture.png}
 \caption{Complete VisionSafe360 architecture}
 \end{figure}
 
 \section{Technologies and Tools Used}
 
-VisionSafe360 was built using modern AI and web development technologies to ensure performance, scalability, and ease of development. Table~\ref{tab:chapter5-technologies} summarizes the main technologies and tools used.
+Table~\ref{tab:chapter5-technologies} summarizes the main tools used in the implementation. Version numbers were taken from the project requirements and package configuration files.
 
 \begin{table}[H]
 \centering
-\renewcommand{\arraystretch}{1.55}
-\begin{tabular}{|>{\centering\arraybackslash}p{0.32\linewidth}|>{\centering\arraybackslash}p{0.56\linewidth}|}
+\footnotesize
+\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{|p{0.2\linewidth}|p{0.16\linewidth}|p{0.28\linewidth}|p{0.25\linewidth}|}
 \hline
-\textbf{Category} & \textbf{Technologies} \\
+\textbf{Tool} & \textbf{Version} & \textbf{Purpose} & \textbf{Justification} \\
 \hline
-\textbf{Programming Languages} & Python, TypeScript \\
+Python & 3.11 & Edge AI and backend services & Strong AI and API ecosystem \\
 \hline
-\textbf{AI Framework} & PyTorch \\
+Ultralytics YOLO & 8.4.16 & Detection, pose estimation, and tracking & Real-time model execution and ByteTrack integration \\
 \hline
-\textbf{Detection Models} & Ultralytics YOLO \\
+PyTorch & 2.10.0 + CUDA 12.8 & GPU inference & Efficient tensor execution on NVIDIA GPU \\
 \hline
-\textbf{Computer Vision} & OpenCV \\
+OpenCV & 4.13.0 / 4.10.0 & Frame handling and image processing & Mature video processing library \\
 \hline
-\textbf{Backend} & FastAPI \\
+FastAPI & 0.115.0 & Backend REST API and WebSocket routing & Fast asynchronous API framework \cite{fastapi_docs} \\
 \hline
-\textbf{Frontend} & React \\
+PostgreSQL & 16 & Persistent database & Reliable relational storage \cite{postgres_docs} \\
 \hline
-\textbf{UI Styling} & Tailwind CSS \\
+SQLAlchemy & 2.0.35 & ORM/database layer & Structured database models and migrations \\
 \hline
-\textbf{Database Layer} & SQLAlchemy \\
+Redis & 5.0.8 client, Redis 7 services & Queues, rate counters, event streams, latest-frame cache & Low-latency shared state and Pub/Sub \cite{redis_docs} \\
 \hline
-\textbf{Caching} & Redis \\
+React & 19.2.1 & Dashboard UI & Component-based interface development \cite{react_docs} \\
 \hline
-\textbf{Deployment} & Docker \\
+TypeScript & 5.8.2 & Dashboard application logic & Type safety for frontend data models \\
+\hline
+Tailwind CSS & 3.4.4 & Dashboard styling & Consistent utility-first UI styling \\
+\hline
+Docker Compose & Compose stack & Multi-service deployment & Reproducible backend, dashboard, database, Redis, and worker services \cite{docker_compose_docs} \\
 \hline
 \end{tabular}
 \caption{\textbf{Technologies and tools used in VisionSafe360}}
 \label{tab:chapter5-technologies}
 \end{table}
 
-These tools were selected because they provide strong support for real-time AI applications and modern web systems.
-
 \section{Hardware Environment}
 
-The project was developed and tested using a laptop with GPU acceleration for AI inference and model execution. Table~\ref{tab:chapter5-hardware} lists the hardware environment.
+The project was developed and tested on a laptop with GPU acceleration. The hardware was sufficient for running YOLO inference, backend services, and the dashboard during prototype testing.
 
 \begin{table}[H]
 \centering
-\renewcommand{\arraystretch}{1.65}
+\renewcommand{\arraystretch}{1.55}
 \begin{tabular}{|>{\centering\arraybackslash}p{0.3\linewidth}|>{\centering\arraybackslash}p{0.58\linewidth}|}
 \hline
 \textbf{Component} & \textbf{Specification} \\
@@ -127,146 +106,182 @@ The project was developed and tested using a laptop with GPU acceleration for AI
 \hline
 \textbf{RAM} & 16 GB \\
 \hline
+\textbf{Operating System} & Windows 11 development environment \\
+\hline
 \end{tabular}
 \caption{\textbf{Hardware environment used for development and testing}}
 \label{tab:chapter5-hardware}
 \end{table}
 
-This hardware was sufficient to achieve near real-time inference while running multiple AI modules simultaneously.
+\section{Module Implementation}
 
-\section{PPE Detection Implementation}
+The edge AI implementation is divided into independent modules. Each module receives detections or pose keypoints and returns a list of structured hazard events. This modular design makes the system easier to test and allows specific hazards to be enabled through runtime profiles.
 
-The PPE detection module was developed to monitor worker compliance with required safety equipment. The system checks whether workers are wearing essential protective equipment such as helmets and safety vests.
+\subsection{PPE Detection}
 
-A YOLO-based detection model was used because of its balance between speed and accuracy for real-time detection. The model was trained using the SH17 PPE dataset. Table~\ref{tab:chapter5-ppe-dataset} presents the PPE dataset and model details.
+The PPE detection module monitors whether workers are wearing required equipment such as helmets, safety vests, gloves, and safety shoes. The module uses a YOLO model trained on SH17, a public PPE dataset containing 8,099 images and 75,994 labeled instances across 17 classes \cite{ahmad2024sh17}. In the implementation, SH17-style labels are normalized into application labels such as \texttt{helmet\_on}, \texttt{helmet\_off}, \texttt{safety\_vest}, \texttt{vest\_off}, \texttt{gloves\_off}, and \texttt{bare\_foot}.
 
 \begin{table}[H]
 \centering
-\renewcommand{\arraystretch}{1.55}
-\begin{tabular}{|>{\centering\arraybackslash}p{0.3\linewidth}|>{\centering\arraybackslash}p{0.58\linewidth}|}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{|>{\centering\arraybackslash}p{0.32\linewidth}|>{\centering\arraybackslash}p{0.56\linewidth}|}
 \hline
 \textbf{Item} & \textbf{Value} \\
 \hline
 \textbf{Dataset} & SH17 PPE Dataset \\
 \hline
-\textbf{Images} & 8,099 \\
+\textbf{Images / Instances} & 8,099 images / 75,994 instances \\
 \hline
-\textbf{Classes} & 17 \\
+\textbf{Detected PPE Classes} & Helmet, safety vest, gloves, shoes, mask, glasses, face guard, ear protection, suit, tool, and related missing-equipment classes \\
 \hline
-\textbf{Instances} & 75,994 \\
+\textbf{Input Resolution} & 640$\times$640 \\
 \hline
-\textbf{Resolution} & 640$\times$640 \\
+\textbf{Model Family} & YOLO detector \\
 \hline
-\textbf{Model} & YOLOv9-e \\
+\textbf{Persistence Rule} & Missing PPE must persist before an incident is emitted \\
 \hline
 \end{tabular}
-\caption{\textbf{PPE dataset and model details}}
+\caption{\textbf{PPE dataset and implementation configuration}}
 \label{tab:chapter5-ppe-dataset}
 \end{table}
 
-Each video frame is processed to detect PPE items. If required equipment is missing for several consecutive frames, the system generates a violation alert to reduce false positives caused by temporary occlusion.
+Listing~\ref{lst:ppe-inference} shows the core PPE inference pattern. The model is loaded once, then each frame is passed to YOLO with confidence, IoU, and maximum-detection limits.
+
+\begin{lstlisting}[language=Python,caption={PPE model inference on one frame},label={lst:ppe-inference}]
+from ultralytics import YOLO
+
+ppe_model = YOLO("weights/ppe/best_ppe.pt")
+
+results = ppe_model.predict(
+    frame,
+    device="cuda:0",
+    imgsz=640,
+    conf=0.30,
+    iou=0.50,
+    max_det=100,
+    verbose=False,
+)[0]
+
+detections = []
+for box in results.boxes:
+    cls_id = int(box.cls[0])
+    name = ppe_model.names[cls_id].lower()
+    detections.append((name, float(box.conf[0]), box.xyxy[0]))
+\end{lstlisting}
+
+The analyzer converts missing-equipment detections into hazard events. For example, \texttt{helmet\_off} is converted into a high-severity missing-helmet event, while \texttt{gloves\_off} is treated as medium severity. The event aggregator then applies persistence and cooldown logic to reduce false positives caused by short occlusions.
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert screenshot showing helmet and vest detection bounding boxes here}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/Vest, Helmet, Gloves detection.png}
 \caption{PPE detection output}
 \end{figure}
 
-\section{Forklift Proximity Detection Implementation}
+\subsection{Forklift Proximity Detection}
 
-This module detects unsafe distances between workers and moving forklifts. Its purpose is to reduce collision risks inside industrial environments.
-
-The system first detects workers and forklifts using object detection. After detection, object tracking maintains identity across frames. Distance estimation is then used to determine whether a worker enters a dangerous zone around a forklift.
-
-The module uses a YOLOv8m model trained on a forklift dataset. Table~\ref{tab:chapter5-forklift-model} summarizes the forklift proximity model configuration.
+The forklift proximity module detects unsafe distances between workers and forklifts. The implementation uses a YOLO detector for forklifts and persons, then calculates Euclidean distance between bounding box centroids in pixel space. The current prototype uses pixel thresholds because monocular CCTV footage does not provide direct depth information. Camera calibration can later replace these pixel thresholds with meter-based distances.
 
 \begin{table}[H]
 \centering
-\renewcommand{\arraystretch}{1.55}
+\renewcommand{\arraystretch}{1.45}
 \begin{tabular}{|>{\centering\arraybackslash}p{0.34\linewidth}|>{\centering\arraybackslash}p{0.54\linewidth}|}
 \hline
 \textbf{Item} & \textbf{Value} \\
 \hline
-\textbf{Model} & YOLOv8m \\
+\textbf{Model} & YOLOv8m forklift/person detector \\
 \hline
 \textbf{Training Images} & 2,468 \\
 \hline
 \textbf{Validation Images} & 500 \\
 \hline
-\textbf{Epochs} & 200 \\
+\textbf{Epochs / Batch Size} & 200 epochs / batch size 16 \\
 \hline
-\textbf{Batch Size} & 16 \\
+\textbf{Danger Threshold} & 80 pixels \\
 \hline
-\textbf{Resolution} & 640$\times$640 \\
+\textbf{Warning Threshold} & 140 pixels \\
+\hline
+\textbf{Alert Persistence} & Unsafe proximity must persist for approximately one second \\
 \hline
 \end{tabular}
-\caption{\textbf{Forklift proximity model configuration}}
+\caption{\textbf{Forklift proximity model and rule configuration}}
 \label{tab:chapter5-forklift-model}
 \end{table}
 
-If unsafe proximity persists for more than one second, the system generates an alert.
+Listing~\ref{lst:proximity} shows the core rule. The nearest forklift is selected for each person, and severity is assigned based on the configured danger and warning radii.
+
+\begin{lstlisting}[language=Python,caption={Worker--forklift distance check},label={lst:proximity}]
+def center(bbox):
+    x1, y1, x2, y2 = bbox
+    return ((x1 + x2) / 2.0, (y1 + y2) / 2.0)
+
+def distance_px(a, b):
+    ax, ay = center(a)
+    bx, by = center(b)
+    return ((ax - bx) ** 2 + (ay - by) ** 2) ** 0.5
+
+for person in persons:
+    dist_px, forklift = min(
+        (distance_px(person.bbox, f.bbox), f) for f in forklifts
+    )
+    if dist_px <= 80:
+        emit_event("forklift_proximity_danger", "High", person)
+    elif dist_px <= 140:
+        emit_event("forklift_proximity_warning", "Medium", person)
+\end{lstlisting}
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert screenshot showing forklift and worker detection here}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/Forklift and worker detection.png}
 \caption{Forklift detection output}
 \end{figure}
 
+\subsection{Fall Detection}
+
+The fall detection module uses a pose-aware rule engine rather than a heavy sequence model. This decision reduced computational cost and made the system easier to explain and tune. Each tracked person has an independent state machine with three implementation states: \texttt{normal}, \texttt{candidate}, and \texttt{confirmed}. A recovered posture returns the track to \texttt{normal}.
+
+The system evaluates bounding box aspect ratio, downward centroid velocity, hip position from COCO keypoints, and immobility. A fall is confirmed only after the candidate posture persists for 2.5 seconds, reducing false alarms from bending, crouching, or short occlusions.
+
+\begin{lstlisting}[language=Python,caption={Fall state transition logic},label={lst:fall-state}]
+if state == "normal" and triggered:
+    state = "candidate"
+    candidate_since = timestamp
+
+elif state == "candidate":
+    recovered = hip_ratio > 0.6 if hip_ratio else aspect_ratio < 0.8
+    if recovered:
+        state = "normal"
+    elif timestamp - candidate_since >= 2.5:
+        state = "confirmed"
+        emit_event(
+            "fall_confirmed",
+            severity="Critical",
+            metadata={"aspect_ratio": aspect_ratio,
+                      "hip_ratio": hip_ratio},
+        )
+
+elif state == "confirmed" and recovered:
+    state = "normal"
+\end{lstlisting}
+
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert screenshot showing danger-zone warning here}
-\caption{Unsafe proximity alert}
-\end{figure}
-
-\section{Fall Detection Implementation}
-
-The fall detection module identifies workplace fall incidents in real time. Falls are considered critical events because delayed response can significantly increase injury severity.
-
-Instead of using sequence-based models such as LSTM, VisionSafe360 uses a pose-aware rule-based approach. Human pose estimation is used to track body movement and posture changes across frames.
-
-The fall detection engine uses four states:
-
-\begin{enumerate}
-\item Normal
-\item Fall Candidate
-\item Fall Confirmed
-\item Fall Recovered
-\end{enumerate}
-
-The system analyzes body geometry, motion direction, and posture transitions to determine whether a fall has occurred. A fall is only confirmed if abnormal posture persists for approximately 2.5 seconds. This reduces false alarms caused by temporary bending or crouching.
-
-\begin{figure}[H]
-\centering
-\chapterplaceholderfigure{Insert fall state machine diagram here}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/fig_5_7_fall_state_machine.png}
 \caption{Fall detection state machine}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert screenshot showing fallen worker and alert popup here}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/Fallen worker .png}
 \caption{Fall detection alert}
 \end{figure}
 
-This design provides reliable fall detection while maintaining low computational cost.
+\subsection{Ergonomic Posture Analysis}
 
-\section{Ergonomic Posture Analysis Implementation}
-
-The ergonomic posture analysis module helps detect unsafe body posture that may cause long-term musculoskeletal injuries.
-
-The system uses body keypoints extracted from pose estimation to calculate joint angles. These angles are used to compute ergonomic risk scores based on industry-standard assessment methods.
-
-Two scoring systems were implemented:
-
-\begin{itemize}
-\item RULA (Rapid Upper Limb Assessment)
-\item REBA (Rapid Entire Body Assessment)
-\end{itemize}
-
-Alert thresholds were defined as shown in Table~\ref{tab:chapter5-ergonomic-thresholds}.
+The ergonomic posture module computes body angles from COCO-17 pose keypoints and feeds them into RULA and REBA scoring functions \cite{mcatamney1993rula,hignett2000reba}. Joint angles are derived from keypoint groups. For example, trunk flexion is computed from the midpoint between both hips and the midpoint between both shoulders, while upper-arm and lower-arm angles use shoulder, elbow, wrist, and hip keypoints.
 
 \begin{table}[H]
 \centering
-\renewcommand{\arraystretch}{1.65}
+\renewcommand{\arraystretch}{1.55}
 \begin{tabular}{|>{\centering\arraybackslash}p{0.34\linewidth}|>{\centering\arraybackslash}p{0.54\linewidth}|}
 \hline
 \textbf{Metric} & \textbf{Threshold} \\
@@ -277,110 +292,261 @@ Alert thresholds were defined as shown in Table~\ref{tab:chapter5-ergonomic-thre
 \hline
 \textbf{Critical Risk} & RULA = 7 or REBA $\geq$ 11 \\
 \hline
+\textbf{Sustained Poor Posture} & 4 seconds before event emission \\
+\hline
+\textbf{Smoothing} & Exponential moving average with alpha = 0.6 \\
+\hline
 \end{tabular}
 \caption{\textbf{Ergonomic posture alert thresholds}}
 \label{tab:chapter5-ergonomic-thresholds}
 \end{table}
 
-To reduce unstable scoring caused by pose jitter, smoothing techniques were applied.
+Listing~\ref{lst:angle} shows the angle calculation used by the ergonomics implementation. The function computes the angle at a joint by comparing the vectors connected to that joint.
+
+\begin{lstlisting}[language=Python,caption={Joint angle calculation for RULA/REBA},label={lst:angle}]
+def angle_between(a, b, c):
+    ba = a - b
+    bc = c - b
+    norm_ba = np.linalg.norm(ba)
+    norm_bc = np.linalg.norm(bc)
+    if norm_ba < 1e-6 or norm_bc < 1e-6:
+        return None
+    cos_angle = np.dot(ba, bc) / (norm_ba * norm_bc)
+    cos_angle = np.clip(cos_angle, -1.0, 1.0)
+    return float(np.degrees(np.arccos(cos_angle)))
+
+angles = compute_angles(smoothed_keypoints, confidences)
+rula_score = compute_rula(angles)["final_score"]
+reba_score = compute_reba(angles)["final_score"]
+\end{lstlisting}
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert skeleton overlay screenshot here}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/posture skeleton.png}
 \caption{Posture skeleton detection}
 \end{figure}
 
-\begin{figure}[H]
-\centering
-\chapterplaceholderfigure{Insert screenshot showing posture score and risk level here}
-\caption{Ergonomic risk alert}
-\end{figure}
+\subsection{Tracking and Event Persistence}
 
-This module helps identify repeated harmful movements before they lead to injuries.
+Tracking is used to maintain worker identity across frames and prevent duplicate incidents. The implementation uses Ultralytics \texttt{model.track(...)} with ByteTrack. The tracker provides persistent \texttt{track\_id} values that are passed to the PPE, proximity, fall, and ergonomics modules.
 
-\section{Tracking and Event Persistence}
+\begin{lstlisting}[language=Python,caption={ByteTrack initialization and ID assignment},label={lst:tracking}]
+results = pose_model.track(
+    frame,
+    device="cuda:0",
+    imgsz=640,
+    conf=0.38,
+    iou=0.50,
+    tracker="bytetrack.yaml",
+    persist=True,
+    verbose=False,
+)[0]
 
-Object tracking plays an important role in VisionSafe360. The system uses tracking to maintain object identity across consecutive frames.
+for box in results.boxes:
+    track_id = int(box.id[0]) if box.id is not None else None
+    detections.append(Detection(
+        class_name="person",
+        confidence=float(box.conf[0]),
+        bbox=tuple(map(int, box.xyxy[0])),
+        track_id=track_id,
+    ))
+\end{lstlisting}
 
-Tracking improves system reliability by reducing duplicate detections and enabling temporal analysis. It also helps maintain stable worker and vehicle IDs during movement.
-
-This improves fall detection consistency, ergonomic scoring stability, and alert persistence logic. Without tracking, temporary detection loss could generate unnecessary alerts.
+Event persistence is handled by temporal rules. PPE events must remain visible before being reported, proximity events are emitted only when the threshold condition persists, fall events require a candidate confirmation window, and posture events require sustained high ergonomic risk. This design prevents single-frame errors from becoming incidents.
 
 \section{Backend Implementation}
 
-The backend was developed using FastAPI. It serves as the central communication layer between AI modules and the dashboard.
+The backend was developed using FastAPI \cite{fastapi_docs}. It acts as the central communication layer for incidents, alerts, analytics, camera configuration, authentication, jobs, and real-time streams.
 
-The backend handles incident logging, alert management, analytics processing, API communication, and WebSocket-based real-time updates.
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{|p{0.24\linewidth}|p{0.24\linewidth}|p{0.41\linewidth}|}
+\hline
+\textbf{Endpoint Group} & \textbf{Method} & \textbf{Purpose} \\
+\hline
+\texttt{/api/incidents} & GET/POST/PATCH/DELETE & List, create, update, and delete incident records \\
+\hline
+\texttt{/api/alerts} & GET/POST/PATCH & Manage alert records and acknowledgement workflow \\
+\hline
+\texttt{/api/analytics/*} & GET & Provide time-series, severity, zone, and dashboard analytics \\
+\hline
+\texttt{/api/cameras} & GET/POST/PATCH/DELETE & Manage camera sources and metadata \\
+\hline
+\texttt{/api/ergonomics} & GET/POST & Store and query ergonomic score samples \\
+\hline
+\texttt{/api/jobs} & GET/POST & Start and monitor AI processing jobs \\
+\hline
+\texttt{/ws/incidents} & WebSocket & Push incident updates to dashboard clients \\
+\hline
+\texttt{/ws/stream/\{camera\_id\}} & WebSocket & Stream annotated AI frames to the dashboard \\
+\hline
+\end{tabular}
+\caption{\textbf{Backend endpoint overview}}
+\label{tab:chapter5-api}
+\end{table}
 
-Whenever a hazard is detected, the AI engine sends event data to the backend, where incidents are stored and processed before being displayed to users.
+The database layer uses SQLAlchemy models for incidents, alerts, cameras, users, notifications, ergonomic records, and system configuration. Alembic migrations are included to create and evolve the PostgreSQL schema. Redis is used for rate limiting, event Pub/Sub, worker queues, orchestration state, and latest-frame streaming.
+
+Listing~\ref{lst:incident-endpoint} shows the core incident ingestion endpoint. After creating a database record, the backend broadcasts an \texttt{incident\_created} event to connected dashboard clients.
+
+\begin{lstlisting}[language=Python,caption={FastAPI incident ingestion endpoint},label={lst:incident-endpoint}]
+@router.post("", response_model=IncidentOut, status_code=201)
+async def create_incident(payload: IncidentCreate,
+                          request: Request,
+                          db: Session = Depends(get_db),
+                          x_source_id: str | None = Header(default=None)):
+    source_id = (x_source_id or payload.zone or "unknown").strip()
+    allowed, retry_after = rate_limit_service.check_and_consume(source_id)
+    if not allowed:
+        raise HTTPException(status_code=429,
+                            detail="Incident ingestion rate limit exceeded")
+
+    incident = IncidentService.create(db, payload)
+    await incident_ws_manager.broadcast({
+        "type": "incident_created",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "incident": serialize_incident(incident),
+    })
+    return incident
+\end{lstlisting}
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert backend/API architecture screenshot here}
-\caption{Backend structure}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/Fast Api swagger.png}
+\caption{Backend API documentation}
 \end{figure}
-
-The backend ensures smooth communication across all system components.
 
 \section{Dashboard Implementation}
 
-The dashboard was implemented using React and TypeScript.
+The dashboard was implemented using React and TypeScript \cite{react_docs}. It gives supervisors and safety teams access to live video, active incidents, historical reports, camera management, and ergonomic analytics.
 
-It provides a complete interface for safety monitoring and analytics. Supervisors can view live streams, inspect incidents, monitor trends, and review ergonomic reports.
+The main dashboard pages are Dashboard Home, Live Monitoring, Alerts, Incident Management, Reports, Ergonomics Analytics, Camera Management, System Configuration, User Management, and System Health. The Live Monitoring page is the most integration-heavy view because it connects to \texttt{/ws/incidents} for real-time incident updates and to stream WebSocket endpoints for annotated AI frames.
 
-Main dashboard sections include:
+\begin{lstlisting}[language=JavaScript,caption={Dashboard WebSocket incident feed},label={lst:dashboard-ws}]
+const ws = new WebSocket(`${WS_BASE_URL}/ws/incidents?token=${token}`);
 
-\begin{itemize}
-\item Dashboard Home
-\item Live Monitoring
-\item Alerts
-\item Incident Management
-\item Reports
-\item Ergonomics Analytics
-\item Camera Management
-\item System Configuration
-\end{itemize}
+ws.onmessage = (event) => {
+  const payload = JSON.parse(event.data);
+  if (payload?.type === "incident_created" && payload?.incident) {
+    upsertIncident(normalizeIncident(payload.incident));
+  }
+};
+
+ws.onclose = () => {
+  setTimeout(connectIncidentFeed, 3000);
+};
+\end{lstlisting}
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert dashboard home screenshot here}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/img_019.png}
 \caption{Main dashboard}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert live monitoring screenshot here}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/Live Monitoring .png}
 \caption{Live monitoring page}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert incident logs screenshot here}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/img_021.png}
 \caption{Incident management page}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\chapterplaceholderfigure{Insert ergonomics analytics screenshot here}
+\safeincludegraphics[width=0.95\linewidth,height=0.58\textheight,keepaspectratio]{images/img_022.png}
 \caption{Ergonomics dashboard}
 \end{figure}
 
-The dashboard makes safety information easier to understand and act on.
+\section{System Integration}
+
+The complete VisionSafe360 prototype integrates the edge AI worker, backend, database, Redis services, dashboard, and media relay.
+
+The edge AI worker converts each hazard into a \texttt{HazardEvent}. The backend client serializes this event into the backend incident schema and sends it through a REST \texttt{POST} request to \texttt{/api/incidents}. If the backend is unavailable, the payload is stored in a local SQLite offline queue and retried later.
+
+After the backend stores the incident in PostgreSQL, it publishes a WebSocket event to all connected dashboard clients. The dashboard receives the event immediately and inserts or updates the incident in the live feed.
+
+Docker Compose ties the services together. The stack includes PostgreSQL 16, multiple Redis 7 services, the FastAPI backend, an RQ worker for AI orchestration, the React dashboard served through Nginx, MediaMTX for RTSP/HLS/WebRTC relay, and pgAdmin for database inspection.
+
+\begin{lstlisting}[language=Python,caption={Edge AI event delivery to backend},label={lst:backend-client}]
+payload = event_to_payload(hazard_event)
+headers = {"Content-Type": "application/json"}
+if auth_token:
+    headers["Authorization"] = f"Bearer {auth_token}"
+
+response = session.post(
+    "http://backend:8000/api/incidents",
+    json=payload,
+    timeout=5.0,
+    headers=headers,
+)
+
+if response.status_code >= 300:
+    enqueue_offline(payload)
+\end{lstlisting}
+
+\begin{lstlisting}[language={},caption={Docker Compose service integration excerpt},label={lst:compose}]
+backend:
+  ports: ["8000:8000"]
+  depends_on: [db, redis-queue, redis-state, redis-events]
+
+worker:
+  command: python worker.py
+  environment:
+    VISIONSAFE_BACKEND_URL: http://backend:8000
+
+dashboard:
+  ports: ["80:80"]
+  depends_on: [backend]
+\end{lstlisting}
+
+The resulting data flow is:
+
+\begin{enumerate}
+\item Camera or video file provides frames to the edge AI worker.
+\item YOLO models detect people, PPE, forklifts, and pose keypoints.
+\item Hazard analyzers create structured events with severity and metadata.
+\item The edge client posts incidents to the backend REST API.
+\item The backend stores records in PostgreSQL and publishes WebSocket updates.
+\item The dashboard displays live incidents, annotated streams, reports, and ergonomic trends.
+\end{enumerate}
 
 \section{Challenges Encountered}
 
-Several technical challenges were faced during implementation.
+Table~\ref{tab:chapter5-challenges} summarizes the main implementation challenges and the solutions applied.
 
-One challenge was false-positive alerts caused by temporary occlusion. For example, a worker's helmet might become temporarily hidden due to camera angle. This problem was reduced by using alert persistence logic instead of triggering alerts immediately.
-
-Another challenge involved lighting conditions. Poor illumination reduced detection confidence in some scenarios. Confidence thresholds and preprocessing helped improve robustness.
-
-Pose estimation also introduced occasional skeleton jitter, which affected posture scoring. This issue was reduced using smoothing techniques.
-
-Camera perspective was another challenge for proximity estimation because depth information is limited in 2D video. Calibration and threshold tuning improved reliability.
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{|p{0.25\linewidth}|p{0.3\linewidth}|p{0.34\linewidth}|}
+\hline
+\textbf{Challenge} & \textbf{Root Cause} & \textbf{Solution Implemented} \\
+\hline
+False-positive PPE alerts & Temporary occlusion, camera angle, or partial worker visibility & Persistence and cooldown logic before emitting incidents \\
+\hline
+Lighting variation & Low illumination reduced detector confidence & Confidence threshold tuning and model-specific preprocessing \\
+\hline
+Pose jitter & Keypoints moved slightly between frames even for stable posture & Exponential moving average smoothing before RULA/REBA scoring \\
+\hline
+Depth ambiguity in proximity detection & Single RGB cameras do not directly provide real-world distance & Pixel-distance thresholds with support for future camera calibration \\
+\hline
+Duplicate incident creation & Same track may remain hazardous for several frames & Track IDs, aggregation windows, cooldowns, and backend duplicate checks \\
+\hline
+Backend outages during live inference & Network or service failures can occur while processing video & Offline SQLite queue in the edge backend client \\
+\hline
+\end{tabular}
+\caption{\textbf{Implementation challenges and solutions}}
+\label{tab:chapter5-challenges}
+\end{table}
 
 \section{Summary}
 
-In this chapter, the implementation of VisionSafe360 was presented in detail. The project successfully integrated AI models, real-time hazard analysis, backend services, and dashboard visualization into a unified workplace safety monitoring system.
+This chapter presented the implementation of VisionSafe360 as a working AI safety monitoring prototype. The PPE module uses YOLO-based detection and persistence rules for missing equipment. The proximity module measures worker--forklift centroid distance with 80-pixel danger and 140-pixel warning thresholds. The fall module confirms incidents after a 2.5-second candidate window using aspect ratio, hip position, downward motion, and immobility checks. The ergonomics module computes RULA and REBA scores from COCO-17 keypoints and emits posture alerts after sustained risk.
 
-The final system provides real-time detection of PPE violations, falls, unsafe proximity, and ergonomic risks while maintaining practical performance for deployment. The implementation demonstrates how AI can significantly improve workplace safety through continuous monitoring and fast hazard response.
+The backend and dashboard complete the system by storing incidents, broadcasting WebSocket updates, displaying live monitoring views, and supporting Docker-based deployment. Together, these components show how VisionSafe360 moves from a design concept into an integrated workplace safety monitoring system.

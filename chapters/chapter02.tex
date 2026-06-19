@@ -19,101 +19,19 @@ B. Thematic Grouping of Literature
 
 1. PPE Detection Systems
 
-Study 1 — Ali et al. (2020)
-
-\begin{itemize}
-\item \textbf{Goal:} Real-time detection of hardhats and safety vests using CCTV video.
-\item \textbf{Method:} YOLOv3-based CNN trained on public construction site datasets.
-\item \textbf{Findings:} Achieved \textit{88\% mAP} under controlled lighting conditions.
-\item \textbf{Strengths/Limitations:} Robust for helmets; accuracy drops with occlusion or low-light scenarios.
-\end{itemize}
-
-Study 2 — Zhang et al. (2021)
-
-\begin{itemize}
-\item \textbf{Goal:} Scalable PPE compliance monitoring in large construction sites.
-\item \textbf{Method:} YOLOv4 combined with DeepSORT tracking to maintain worker identities.
-\item \textbf{Findings:} Consistent detection across multiple camera angles; \textit{82\% ID tracking accuracy}.
-\item \textbf{Strengths/Limitations:} High computational demands limit deployment on edge devices.
-\end{itemize}
-
-Study 3 — López et al. (2022)
-
-\begin{itemize}
-\item \textbf{Goal:} Detect PPE violations (helmet, vest, gloves, boots).
-\item \textbf{Method:} Lightweight MobileNet-SSD architecture for edge devices.
-\item \textbf{Findings:} Good speed (20–25 FPS on Jetson Nano) with \textit{75\% detection accuracy}.
-\item \textbf{Strengths/Limitations:} Limited precision for small PPE items like gloves.
-\end{itemize}
+Personal protective equipment is a core requirement in industrial and construction safety. OSHA defines PPE as equipment worn to reduce exposure to workplace hazards, including hard hats, safety glasses, gloves, respirators, coveralls, vests, and full-body suits \cite{osha_ppe_overview}. In computer vision research, PPE compliance has commonly been addressed using object detection. Nath et al. presented YOLO-based deep-learning models for real-time detection of hard hats and safety vests on construction sites \cite{nath2020ppe}. More recent PPE research has expanded beyond helmets and vests to larger multi-class datasets. The SH17 dataset contains 8,099 annotated images with 75,994 instances across 17 PPE and body-part classes, and its authors reported YOLOv9-e as the strongest benchmark model with 70.9\% mAP@0.5 \cite{ahmad2024sh17}.
 
 2. Fall Detection Using Temporal Modelling
 
-Study 4 — Nguyen et al. (2020)
-
-\begin{itemize}
-\item \textbf{Goal:} Fall detection in industrial videos.
-\item \textbf{Method:} LSTM networks using frames extracted from CCTV.
-\item \textbf{Findings:} \textit{92\% accuracy} on staged falls; reduced reliability in crowded scenes.
-\item \textbf{Strengths/Limitations:} Temporal modelling is strong, but dependent on clean video input.
-\end{itemize}
-
-Study 5 — Han et al. (2021)
-
-\begin{itemize}
-\item \textbf{Goal:} Real-time fall classification.
-\item \textbf{Method:} 3D CNN + optical flow to capture temporal patterns.
-\item \textbf{Findings:} Works well on multiple camera angles; \textit{86\% precision}.
-\item \textbf{Strengths/Limitations:} Computationally expensive; not suitable for low-end GPUs.
-\end{itemize}
-
-Study 6 — Wang et al. (2022)
-
-\begin{itemize}
-\item \textbf{Goal:} Edge-based fall detection for IoT safety systems.
-\item \textbf{Method:} Tiny-YOLO + GRU model for sequences.
-\item \textbf{Findings:} 17 FPS edge deployment with reasonable accuracy.
-\item \textbf{Strengths/Limitations:} Reduced accuracy during occlusion or distance >8 meters.
-\end{itemize}
+Vision-based fall detection research commonly uses body shape, motion, optical flow, pose features, or temporal deep-learning models to distinguish falls from normal activities. Nunez-Marcos et al. proposed a fall-detection system based on convolutional neural networks and optical-flow representations over video sequences \cite{nunez2017fall}. These approaches are useful for safety monitoring, but they remain sensitive to occlusion, camera viewpoint, crowded scenes, and the availability of representative fall data.
 
 3. Proximity and Collision Risk Detection
 
-Study 7 — Kim et al. (2021)
-
-\begin{itemize}
-\item \textbf{Goal:} Worker-vehicle proximity alerts.
-\item \textbf{Method:} DeepSORT multi-object tracking + depth estimation.
-\item \textbf{Findings:} Real-time distance estimation; \textit{80\% near-miss prediction accuracy}.
-\item \textbf{Strengths/Limitations:} Requires camera calibration for accurate distance estimation.
-\end{itemize}
-
-Study 8 — Carter et al. (2022)
-
-\begin{itemize}
-\item \textbf{Goal:} Predict collision risks between forklifts and workers.
-\item \textbf{Method:} YOLO-based object detection + probabilistic motion prediction.
-\item \textbf{Findings:} Reduced false alerts by \textit{25\%} compared to fixed-threshold systems.
-\item \textbf{Strengths/Limitations:} Complex motion modelling; sensitive to camera shake.
-\end{itemize}
+Worker-vehicle proximity monitoring depends on reliable object detection and tracking. Multi-object tracking methods such as Deep SORT improve the original SORT approach by adding a deep appearance-based association metric, reducing identity switches during occlusion and supporting more stable tracking in video streams \cite{wojke2017deepsort}. For industrial proximity alerts, this type of tracking can be combined with camera calibration or scene geometry to estimate whether a worker is entering a dangerous zone near forklifts or other moving equipment.
 
 4. Posture and Ergonomics Assessment
 
-Study 9 — Ahmed and Patel (2019)
-
-\begin{itemize}
-\item \textbf{Goal:} Detect ergonomically harmful postures in warehouses.
-\item \textbf{Method:} OpenPose skeleton extraction + angle-based risk scoring.
-\item \textbf{Findings:} Effective at detecting bending, twisting, and lifting risks.
-\item \textbf{Strengths/Limitations:} Struggles with partial body visibility.
-\end{itemize}
-
-Study 10 — Brown et al. (2021)
-
-\begin{itemize}
-\item \textbf{Goal:} Automated ergonomic risk assessment (REBA score prediction).
-\item \textbf{Method:} CNN + LSTM for joint angle sequences.
-\item \textbf{Findings:} \textit{74\% agreement rate} with expert physiologists.
-\item \textbf{Strengths/Limitations:} Requires large annotated posture datasets.
-\end{itemize}
+Posture-based ergonomic assessment is commonly linked to observational methods such as RULA and REBA. RULA was introduced by McAtamney and Corlett as a rapid method for investigating work-related upper-limb disorders \cite{mcatamney1993rula}. REBA was later introduced by Hignett and McAtamney to assess whole-body postural risk in more varied working postures \cite{hignett2000reba}. Computer vision makes it possible to estimate body keypoints automatically and use them for ergonomic scoring. OpenPose demonstrated real-time multi-person 2D pose estimation using Part Affinity Fields \cite{cao2017openpose}, supporting the use of pose keypoints for non-contact posture analysis.
 
 C. Summary of the Reviewed Studies
 

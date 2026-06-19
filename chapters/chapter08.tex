@@ -1,0 +1,57 @@
+\chapter{Conclusions and Future Work}
+
+\section{Conclusion}
+
+VisionSafe360 was implemented as an integrated, end-to-end industrial safety monitoring system that connects edge inference, backend services, persistent storage, and operator-facing interfaces. The project moved beyond a conceptual design by realizing a working prototype in which the main system layers communicate through a complete processing pipeline.
+
+The system combines trained computer vision models with interpretable safety logic. At the edge layer, YOLO models are used for pose estimation, forklift/person detection, and PPE compliance detection. Their outputs are processed by safety-analysis engines responsible for fall detection, proximity assessment between forklifts and workers, and ergonomic risk evaluation using RULA/REBA-inspired rule logic. This design separates trained detection tasks from rule-based safety reasoning, making the system more transparent and easier to tune for hazards where labeled training data is limited.
+
+The complete architecture includes a FastAPI backend, PostgreSQL database, Redis-based event distribution, a worker process for per-camera orchestration, and a React web dashboard for live monitoring, incident management, and analytics. The stack is containerized using Docker Compose \cite{docker_compose_docs}, which simplifies service coordination and deployment. A companion mobile application is also under active development to extend monitoring and alert access to mobile users.
+
+Evaluation was conducted at both model and system levels. The custom forklift/person detector achieved an mAP@0.5 of 87.22\%, while the PPE detector evaluated on the SH17 dataset achieved an mAP@0.5 of 70.9\%. The integrated edge pipeline sustained approximately 15 FPS on laptop-class hardware with a median inference latency of 11.3 ms. In addition, 190 automated unit tests passed across the rule-based safety engines, supporting the functional correctness of the fall-detection, proximity, ergonomic, and related analysis logic.
+
+Overall, VisionSafe360 demonstrates the feasibility of a privacy-aware, edge-based safety monitoring platform for industrial environments. It provides a practical foundation for detecting PPE violations, unsafe forklift proximity, fall-related events, and posture-related ergonomic risks, while also offering a clear roadmap toward operational deployment.
+
+\section{Limitations}
+
+Although the prototype achieved its main objectives, several limitations remain:
+
+\begin{itemize}
+\item \textbf{Absence of field deployment:} The system has not yet been deployed in a real factory or construction-site environment. Testing was performed on a single workstation using sample industrial-style footage, which may not fully represent real operational variability.
+
+\item \textbf{Model-level accuracy evaluation:} Detection accuracy was measured for the trained models individually. A unified end-to-end accuracy assessment of the full integrated pipeline was not performed, so the reported metrics describe model performance rather than total system accuracy.
+
+\item \textbf{Sensitivity of rule-based modules:} Fall detection and ergonomic assessment depend on pose keypoints and rule-based thresholds. Their performance can be affected by camera angle, occlusion, body visibility, and variations in worker posture.
+
+\item \textbf{Dependence on camera calibration:} Proximity and speed estimation require accurate camera calibration. Without calibration, distance and velocity values should be treated as approximate.
+
+\item \textbf{Limited dataset diversity:} The available datasets and sample videos do not cover all possible lighting conditions, camera positions, crowd densities, and industrial layouts. This limits how strongly the results can be generalized to all real-world environments.
+
+\item \textbf{Single-machine deployment constraints:} The current prototype runs on a single machine with one GPU. Under heavier workloads or multiple simultaneous camera streams, frame drops may occur unless additional optimization or distributed processing is introduced.
+\end{itemize}
+
+\section{Future Work}
+
+Future development should focus on improving robustness, scalability, and readiness for real deployment:
+
+\begin{itemize}
+\item \textbf{Larger and more diverse datasets:} Collecting real industrial data across different lighting, occlusion, worker-density, and camera-angle conditions would improve model generalization and strengthen evaluation reliability.
+
+\item \textbf{Real-site deployment and validation:} Deploying the system in an operational industrial facility would allow measurement of real false-alarm rates, detection reliability, latency, and usability under practical conditions.
+
+\item \textbf{Unified system-level evaluation:} A complete evaluation framework should be developed to measure the accuracy of the full pipeline, from video input through detection, safety analysis, backend recording, and dashboard notification.
+
+\item \textbf{Completion of the mobile application:} The companion mobile app should be completed with real-time notifications, incident review, and live monitoring features fully integrated with the backend.
+
+\item \textbf{Multi-camera scalability:} The architecture should be extended to support concurrent multi-camera inference. Optimization methods such as FP16 or TensorRT inference, batching, and better GPU scheduling could reduce frame drops and improve throughput.
+
+\item \textbf{Production-grade alerting:} Future implementation should add Firebase Cloud Messaging (FCM) push notifications, email alerts, and integration with physical alarms such as sirens or warning lights. These features were treated as future deployment work rather than part of the current prototype.
+
+\item \textbf{Cloud-based multi-site management:} A cloud-hosted management layer could allow centralized monitoring across multiple facilities while keeping privacy-sensitive video processing at the edge.
+
+\item \textbf{Additional hazard categories:} Future versions may include detection of fire, smoke, spills, restricted-zone intrusion, and other industrial hazards.
+
+\item \textbf{Improved fall and posture intelligence:} Trained classifiers may be added to complement the current rule-based fall and ergonomic modules, improving robustness across different viewpoints and body postures.
+
+\item \textbf{Security hardening:} Authentication and authorization should be strengthened through token revocation, password recovery, secure credential handling, and removal of development credentials before production deployment.
+\end{itemize}

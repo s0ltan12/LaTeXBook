@@ -9,25 +9,26 @@ The project work was structured into several main work packages. Each package fo
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.55}
-\begin{tabular}{|>{\centering\arraybackslash}p{0.24\linewidth}|>{\centering\arraybackslash}p{0.3\linewidth}|>{\centering\arraybackslash}p{0.34\linewidth}|}
+\footnotesize
+\begin{tabular}{|>{\centering\arraybackslash}p{0.2\linewidth}|>{\centering\arraybackslash}p{0.22\linewidth}|>{\centering\arraybackslash}p{0.24\linewidth}|>{\centering\arraybackslash}p{0.22\linewidth}|}
 \hline
-\textbf{Work Package} & \textbf{Main Activities} & \textbf{Output} \\
+\textbf{Work Package} & \textbf{Owner} & \textbf{Main Activities} & \textbf{Output} \\
 \hline
-\textbf{Requirements Analysis} & Define problem, project scope, user needs, and system requirements & Functional and non-functional requirements \\
+\textbf{Requirements Analysis} & Mohamed Soltan & Define problem, project scope, user needs, and system requirements & Functional and non-functional requirements \\
 \hline
-\textbf{Dataset Preparation} & Collect datasets, review labels, prepare input data, and organize training files & Prepared datasets for model training \\
+\textbf{Dataset Preparation} & Hesham Mohamed & Collect datasets, review labels, prepare input data, and organize training files & Prepared datasets for model training \\
 \hline
-\textbf{AI Model Development} & Train and configure PPE, forklift, fall, and posture detection modules & Hazard detection models and rules \\
+\textbf{AI Model Development} & Hesham Mohamed, Mohamed Soltan & Train and configure PPE, forklift, fall, and posture detection modules & Hazard detection models and rules \\
 \hline
-\textbf{Backend Development} & Build APIs, incident handling, alert logic, and data persistence & FastAPI backend services \\
+\textbf{Backend Development} & John Amin, Hesham Mohamed & Build APIs, incident handling, alert logic, and data persistence & FastAPI backend services \\
 \hline
-\textbf{Dashboard Development} & Create monitoring pages, alerts view, reports, and ergonomics analytics & Web dashboard interface \\
+\textbf{Dashboard Development} & Raneem Mohamed & Create monitoring pages, alerts view, reports, and ergonomics analytics & Web dashboard interface \\
 \hline
-\textbf{Integration} & Connect AI engine, backend, and dashboard workflow & Unified VisionSafe360 prototype \\
+\textbf{Integration} & Hesham Mohamed & Connect AI engine, backend, and dashboard workflow & Unified VisionSafe360 prototype \\
 \hline
-\textbf{Testing and Evaluation} & Test modules, measure results, verify alerts, and evaluate runtime performance & Testing results and evaluation chapter \\
+\textbf{Testing and Evaluation} & Hesham Mohamed, Mohamed Soltan & Test modules, measure results, verify alerts, and evaluate runtime performance & Testing results and evaluation chapter \\
 \hline
-\textbf{Documentation} & Prepare report chapters, figures, tables, and final project material & Final graduation project report \\
+\textbf{Documentation} & Mohamed Soltan & Prepare report chapters, figures, tables, and final project material & Final graduation project report \\
 \hline
 \end{tabular}
 \caption{\textbf{Work breakdown structure}}
@@ -56,19 +57,21 @@ Table~\ref{tab:chapter7-team-roles} summarizes the main project roles and contri
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.55}
-\begin{tabular}{|>{\centering\arraybackslash}p{0.3\linewidth}|>{\centering\arraybackslash}p{0.58\linewidth}|}
+\begin{tabular}{|>{\centering\arraybackslash}p{0.25\linewidth}|>{\centering\arraybackslash}p{0.25\linewidth}|>{\centering\arraybackslash}p{0.38\linewidth}|}
 \hline
-\textbf{Role} & \textbf{Contribution Area} \\
+\textbf{Role} & \textbf{Team Member(s)} & \textbf{Contribution Area} \\
 \hline
-\textbf{AI Model Development} & Dataset preparation, YOLO model training, pose analysis, fall rules, and hazard detection logic \\
+\textbf{AI Model Development} & Hesham Mohamed, Mohamed Soltan & Dataset preparation, YOLO model training, pose analysis, fall rules, and hazard detection logic \\
 \hline
-\textbf{Backend Development} & API design, incident logging, alert management, WebSocket updates, and data handling \\
+\textbf{Backend Development} & Hesham Mohamed, John Amin & API design, incident logging, alert management, WebSocket updates, and data handling \\
 \hline
-\textbf{Frontend Development} & Dashboard pages, live monitoring interface, alert views, reports, and ergonomic analytics interface \\
+\textbf{Frontend Development} & Raneem Mohamed & Dashboard pages, live monitoring interface, alert views, reports, and ergonomic analytics interface \\
 \hline
-\textbf{Testing and Evaluation} & Test case design, model evaluation, runtime measurement, and result analysis \\
+\textbf{Mobile Application} & Shams Mohamed, John Amin & Mobile alert screens, incident acknowledgement flow, field response interface, and notification views \\
 \hline
-\textbf{Documentation} & Report writing, diagrams, tables, formatting, and final project organization \\
+\textbf{Testing and Evaluation} & Hesham Mohamed & Test case design, model evaluation, runtime measurement, and result analysis \\
+\hline
+\textbf{Documentation} & Mohamed Soltan & Report writing, diagrams, tables, formatting, and final project organization \\
 \hline
 \end{tabular}
 \caption{\textbf{Project roles and contribution areas}}
@@ -91,6 +94,8 @@ Several risks were considered during project development. These risks included t
 \textbf{Low detection accuracy} & Incorrect or missed safety alerts & Improve dataset quality, tune thresholds, and apply persistence logic \\
 \hline
 \textbf{High false positives} & Alert fatigue for supervisors & Use confidence thresholds, cooldown periods, and temporal validation \\
+\hline
+\textbf{AI model bias} & Unequal detection accuracy across camera angles, lighting conditions, PPE colors, or worker appearances & Use diverse datasets, test under varied site conditions, and review false positives/false negatives regularly \\
 \hline
 \textbf{Low runtime performance} & Delayed real-time monitoring & Use GPU acceleration, optimized models, and controlled input resolution \\
 \hline
@@ -116,6 +121,8 @@ The main ethical principle is that the system should be used as a safety assista
 Privacy was considered throughout the design. The project follows the principle of minimizing stored personal data. Raw video storage is avoided, and only safety-related metadata, alerts, and selected evidence snapshots should be stored when required. In a real deployment, face blurring or anonymization should be applied before saving or transmitting any visual evidence.
 
 Legal considerations include compliance with workplace safety regulations, data protection requirements, and organizational camera-use policies. Workers should be informed that AI-assisted monitoring is used for safety purposes. Access to incident records should be restricted based on user roles, and sensitive evidence should be protected using secure authentication and encrypted communication.
+
+All external datasets, frameworks, libraries, diagrams, and referenced ideas used in the project were cited properly, and the report was prepared to avoid plagiarism by clearly distinguishing original work from external sources.
 
 Table~\ref{tab:chapter7-ethics} summarizes the main ethical and legal controls considered in the project.
 
@@ -148,6 +155,8 @@ These controls help ensure that the system improves workplace safety while respe
 \section{Sustainability and Societal Impact}
 
 VisionSafe360 contributes to sustainability by improving occupational safety and reducing preventable workplace injuries. Safer workplaces reduce downtime, medical costs, equipment damage, and operational disruption. The system also supports preventive safety practices by identifying risks before they become serious incidents.
+
+From a digital transformation perspective, VisionSafe360 shows how traditional workplace safety practices can move from manual observation and delayed reporting toward AI-assisted, data-driven monitoring. By combining edge computing, real-time dashboards, automated incident records, and analytics, the system supports faster decisions and helps organizations build a more proactive safety management process.
 
 The ergonomic analysis module has a long-term societal benefit because musculoskeletal injuries often develop slowly and may not be reported immediately. By monitoring posture trends, HSE teams can identify risky tasks, redesign workflows, and reduce long-term worker health problems.
 

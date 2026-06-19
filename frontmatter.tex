@@ -12,67 +12,17 @@
 % ---------------------------------------------------------
 % TITLE PAGE
 % ---------------------------------------------------------
-\begin{titlepage}
-\thispagestyle{empty}
-\begin{singlespace}
-\begin{center}
-	\fontsize{16}{19}\selectfont
-	\vspace*{0.3cm}
-	\includegraphics[width=4.4cm]{img_001.png}
-
-	\vspace{0.25cm}
-	{\fontsize{16}{19}\selectfont\bfseries\textarabic{كلية الذكاء الاصطناعي}\par}
-
-	\vspace{0.18cm}
-	{\fontsize{16}{19}\selectfont\bfseries Egyptian Russian University\par}
-
-	\vspace{0.18cm}
-	{\fontsize{16}{19}\selectfont\bfseries Faculty of Artificial Intelligence\par}
-
-	\vspace{0.18cm}
-	{\fontsize{16}{19}\selectfont\bfseries Department of Artificial Intelligence\par}
-
-	\vspace{0.25cm}
-	{\fontsize{22}{26}\selectfont\bfseries\color{ERUblue} VisionSafe 360\par}
-
-	\vspace{0.15cm}
-	{\fontsize{22}{26}\selectfont\bfseries\color{ERUblue}\textarabic{رؤيــــة آمنــــة 360 درجــــة}\par}
-
-	\vspace{0.25cm}
-	\begin{minipage}{0.96\textwidth}
-		\centering
-		Submitted to the Department of Artificial Intelligence at the Faculty
-		of Artificial Intelligence, Egyptian Russian University, in partial
-		fulfillment of the requirements for obtaining a Bachelor's degree.\\
-		(First Term)
-	\end{minipage}
-
-	\vspace{0.5cm}
-	\begin{tabular}{@{}p{0.43\textwidth}p{0.43\textwidth}@{}}
-		\centering\bfseries 1) Mohamed Soltan &
-		\centering\arraybackslash\bfseries 2) Hisham Mohamed \\[0.25cm]
-		\centering\bfseries 3) Raneem Mohamed &
-		\centering\arraybackslash\bfseries 4) John Amin \\[0.25cm]
-		\multicolumn{2}{c}{\bfseries 5) Shams Elden Mohammed}
-	\end{tabular}
-
-	\vspace{0.45cm}
-	{\bfseries Supervisor\par}
-
-	\vspace{0.25cm}
-	\begin{tabular}{@{}p{0.43\textwidth}p{0.43\textwidth}@{}}
-		\centering\bfseries Dr. Amr Ibrahim &
-		\centering\arraybackslash\bfseries Eng. Aya Adel
-	\end{tabular}
-
-	\vspace{0.18cm}
-	Academic degree and specialization
-
-	\vfill
-	{\fontsize{22}{26}\selectfont\bfseries 2026\par}
-\end{center}
-\end{singlespace}
-\end{titlepage}
+\includepdf[
+	pages=1,
+	pagecommand={%
+		\thispagestyle{empty}%
+		\AddToShipoutPictureFG*{%
+			\AtPageLowerLeft{\put(245,365){\color{white}\rule{120pt}{30pt}}}%
+			\AtPageLowerLeft{\put(70,55){\color{white}\rule{460pt}{16pt}}}%
+			\AtPageLowerLeft{\put(455,25){\color{white}\rule{115pt}{34pt}}}%
+		}%
+	}
+]{Graduation Project.pdf}
 
 % ---------------------------------------------------------
 % LIST OF CONTENTS + LISTS OF FIGURES/TABLES
@@ -213,8 +163,6 @@ API & Application Programming Interface \\
 \hline
 RBAC & Role-Based Access Control \\
 \hline
-FCM & Firebase Cloud Messaging \\
-\hline
 ERD & Entity Relationship Diagram \\
 \hline
 DFD & Data Flow Diagram \\
@@ -237,4 +185,3 @@ GPU & Graphics Processing Unit \\
 % ---------------------------------------------------------
 \cleardoublepage
 \pagenumbering{arabic}
-

@@ -20,11 +20,13 @@
 \usepackage{enumitem}
 \usepackage{caption}
 \usepackage{pdflscape}
+\usepackage{pdfpages}
 \usepackage{float}
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{ragged2e}
 \usepackage{chngcntr}
+\usepackage{listings}
 
 % Path to images
 \graphicspath{{images/}{UIUX/}}
@@ -38,6 +40,8 @@
 
 % --- Template Accent Colour (faculty heading blue) ---
 \definecolor{ERUblue}{RGB}{46,116,181}
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{210,210,210}
 
 % --- Page Layout (A4, template margins, justified, 1.5 spacing) ---
 \geometry{left=2.5cm, right=2cm, top=2.7cm, bottom=2.2cm, headsep=12pt}
@@ -68,6 +72,7 @@
 \renewcommand{\contentsname}{List of Contents}
 \renewcommand{\listfigurename}{List of Figures}
 \renewcommand{\listtablename}{List of Tables}
+\renewcommand{\bibname}{References}
 
 % --- Font Size + Colour Rules (Strict template implementation) ---
 % Chapter titles: 16 pt, bold, blue
@@ -100,9 +105,41 @@
 \titlespacing*{\subsection}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
 % Caption styling: bold label, centered, captions sit below floats
-\counterwithout{figure}{chapter}
+\counterwithin{figure}{chapter}
+\counterwithin{table}{chapter}
 \captionsetup{labelfont=bf,font=small,justification=centering,singlelinecheck=true}
 \captionsetup[table]{position=bottom}
+
+% --- Code snippet styling for implementation chapters ---
+\lstdefinestyle{visionsafe}{
+	basicstyle=\ttfamily\footnotesize,
+	backgroundcolor=\color{codebg},
+	frame=single,
+	rulecolor=\color{codeframe},
+	breaklines=true,
+	columns=fullflexible,
+	keepspaces=true,
+	showstringspaces=false,
+	tabsize=2,
+	captionpos=b
+}
+\lstdefinelanguage{JavaScript}{
+	keywords={const,let,var,if,else,return,new,setTimeout},
+	sensitive=true,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	morestring=[b]",
+	morestring=[b]'
+}
+\lstset{style=visionsafe}
+
+\newcommand{\chapterplaceholderfigure}[1]{%
+  \fbox{%
+    \parbox[c][0.22\textheight][c]{0.9\linewidth}{%
+      \centering #1%
+    }%
+  }%
+}
 
 % --- Robust image include (placeholder box if a file is missing) ---
 \newcommand{\safeincludegraphics}[2][]{%
@@ -138,6 +175,7 @@
 \include{chapters/chapter05}
 \include{chapters/chapter06}
 \include{chapters/chapter07}
+\include{chapters/chapter08}
 
 % ---------------------------------------------------------
 % BIBLIOGRAPHY (optional - included only if references.bib exists)
